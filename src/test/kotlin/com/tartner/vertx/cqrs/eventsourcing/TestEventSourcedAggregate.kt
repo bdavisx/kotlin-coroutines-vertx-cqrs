@@ -1,13 +1,10 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
 import arrow.core.*
-import arrow.syntax.either.*
 import com.kamedon.validation.*
 import com.tartner.vertx.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
-import io.kotlintest.*
-import java.util.*
 
 sealed class TestEventSourcedAggregateCommands(): AggregateCommand
 sealed class TestEventSourcedAggregateEvents(): AggregateEvent
@@ -41,25 +38,25 @@ class TestEventSourcedAggregate(
 
     val validation = validateCreateCommand(command)
 
-    var reply = if (!command.name.isEmpty()) {
-
-    }
+//    var reply = if (!command.name.isEmpty()) {
+//
+//    }
 
     FReply().createLeft()
   }
 
   private fun validateCreateCommand(command: CreateTestEventSourcedAggregateCommand)
     : Validation<CreateTestEventSourcedAggregateCommand> {
-    
+
     /* Validation: aggregateId must not exist, name must not be blank. */
     val validation = Validation<CreateTestEventSourcedAggregateCommand> {
       "aggregateId" {
-        be {
+        mustBe {
           !testEventSourcedAggregateQuery.aggregateIdExists(command.aggregateId)
-        } not "aggregateId must not already exist"
+        } ifNot "aggregateId must not already exist"
 
         "name"{
-          be { command.name.length >= 1 } not "name: 1 character or more"
+          mustBe { command.name.length >= 1 } ifNot "name: 1 character or more"
         }
       }
     }

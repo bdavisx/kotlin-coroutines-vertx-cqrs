@@ -23,6 +23,8 @@ package com.kamedon.validation
 
 /**
  * Created by Kamedon
+ *
+ * Modified by bdavisx
  */
 class Validation<T>(val validations: Map<String, ChildValidation<T>>) {
 
@@ -33,39 +35,55 @@ class Validation<T>(val validations: Map<String, ChildValidation<T>>) {
     }
   }
 
-  fun validate(value: T): Map<String, List<String>> {
+  fun validate(value: T): ValidationIssues {
     val messages = mutableMapOf<String, List<String>>()
     validations.forEach { map ->
-      val errors = map.value.validations.filter { !it.first.invoke(value) }.map { it.second }.takeIf { it.isNotEmpty() }
+      val errors = map.value.validations
+        .filter {!it.first.invoke(value)}
+        .map { it.second }
+        .takeIf { it.isNotEmpty() }
+
       errors?.also {
-        messages.put(map.key, it)
+        messages[map.key] = it
       }
     }
-    return messages
+    return ValidationIssues(messages)
+  }
   }
 
+class ValidationIssues(private val validations: Map<String, List<String>>) {
+  val hasIssues: Boolean; get() = validations.isNotEmpty()
+
+  /** Returns a single string representing the issues. */
+  fun formatIssueMessages(): String {
+    if (!hasIssues) return ""
+
+    return validations
+      .flatMap { it: Map.Entry<String, List<String>> -> it.value.map { it } }
+      .fold(StringBuilder(), {builder, message -> builder.append(message).append("; ") })
+      .toString()
+  }
 }
 
 class ValidationBuilder<T> {
-  var childValidations: MutableMap<String, ChildValidation<T>> = mutableMapOf()
+  private var childValidations: MutableMap<String, ChildValidation<T>> = mutableMapOf()
 
   operator fun String.invoke(init: ChildValidation<T>.() -> Unit) {
-    childValidations.put(this, ChildValidation<T>().apply(init))
+    childValidations[this] = ChildValidation<T>().apply(init)
   }
 
   fun build(): Validation<T> {
     return Validation(childValidations)
   }
-
 }
 
 class ChildValidation<T> {
   var validations: MutableList<Pair<T.() -> Boolean, String>> = mutableListOf()
 
-  fun be(validate: T.() -> Boolean) = validate
+  fun mustBe(validate: T.() -> Boolean) = validate
 
-  infix fun (T.() -> Boolean).not(error: String) {
+  infix fun (T.() -> Boolean).ifNot(error: String) {
     validations.add(this to error)
   }
-
 }
+
