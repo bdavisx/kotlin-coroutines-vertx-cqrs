@@ -19,12 +19,16 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.kamedon.validation
+package com.tartner.kamedon.validation
 
 /**
  * Created by Kamedon
  *
- * Modified by bdavisx
+ * Modified by bdavisx (changed `be` to `mustBe` and `not` to `IfNot`. So now code reads like this:
+      "name" { mustBe { !name.isBlank() } ifNot "name: must not be blank"
+ *
+ * I (bdavisx) just liked how this read vs. the original; otherwise it's an awesome, compact way
+ * to deal with validation.
  */
 class Validation<T>(val validations: Map<String, ChildValidation<T>>) {
 
@@ -35,7 +39,7 @@ class Validation<T>(val validations: Map<String, ChildValidation<T>>) {
     }
   }
 
-  fun validate(value: T): ValidationIssues {
+  fun validate(value: T): ValidationIssues? {
     val messages = mutableMapOf<String, List<String>>()
     validations.forEach { map ->
       val errors = map.value.validations
@@ -47,17 +51,20 @@ class Validation<T>(val validations: Map<String, ChildValidation<T>>) {
         messages[map.key] = it
       }
     }
-    return ValidationIssues(messages)
-  }
-  }
 
-class ValidationIssues(private val validations: Map<String, List<String>>) {
-  val hasIssues: Boolean; get() = validations.isNotEmpty()
+    return if (messages.isEmpty()) { null }
+      else { ValidationIssues(messages) }
+  }
+}
+
+/** There will *always* be validations if you get an instance of this class. */
+class ValidationIssues(val validations: Map<String, List<String>>) {
+  init {
+    if (validations.isEmpty()) { throw IllegalArgumentException("Can't have empty validations") }
+  }
 
   /** Returns a single string representing the issues. */
   fun formatIssueMessages(): String {
-    if (!hasIssues) return ""
-
     return validations
       .flatMap { it: Map.Entry<String, List<String>> -> it.value.map { it } }
       .fold(StringBuilder(), {builder, message -> builder.append(message).append("; ") })

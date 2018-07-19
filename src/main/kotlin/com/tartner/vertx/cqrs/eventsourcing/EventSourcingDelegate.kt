@@ -11,6 +11,12 @@ import io.vertx.kotlin.coroutines.*
 import kotlinx.coroutines.experimental.*
 
 /**
+ * Many functions will return an Either<FailureReply, *>, this is the standard to return if version
+ * creation fails.
+ */
+data class CreateAggregateVersionFailed(val errorEvent: ErrorEvent): FailureReply
+
+/**
  NOTE: Each Aggregate/Verticle needs their own copy of this.
 
  Responsible for handling the Event Sourcing aspects for a delegate.

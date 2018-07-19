@@ -103,8 +103,8 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
           val events = mutableListOf<AggregateEvent>()
           var aggregateVersion: Long = 0
           for (i in 1..1000) {
-//            events.add(UserCreatedEvent(aggregateId, aggregateVersion++, Email("abc@123.com")))
-//            events.add(UserEmailChangedEvent(aggregateId, aggregateVersion++, Email("abc@123.com")))
+            events.add(TestEventSourcedAggregateCreated(aggregateId, aggregateVersion++, "Name"))
+            events.add(TestEventSourcedAggregateNameChanged(aggregateId, aggregateVersion++, "New Name"))
           }
 
           val addResult = verticle.storeAggregateEvents(aggregateId, events)
