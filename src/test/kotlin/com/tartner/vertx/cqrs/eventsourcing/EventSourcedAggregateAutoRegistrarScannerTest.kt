@@ -10,7 +10,7 @@ import kotlin.reflect.full.*
 class EventSourcedAggregateAutoRegistrarScannerTest {
   @Test
   fun something() {
-    val aggregateClass = TestEventSourcedAggregate::class.java
+    val aggregateClass = EventSourcedTestAggregate::class.java
     val reflections = Reflections(aggregateClass)
 
     val aggregateClasses: MutableSet<Class<*>> =

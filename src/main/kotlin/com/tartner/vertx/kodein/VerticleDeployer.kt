@@ -5,11 +5,6 @@ import io.vertx.core.json.*
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
-interface HasDeploymentOptions {
-  /** 0 means 1 deployment instance. */
-  val percentOfBusThreads: Double
-}
-
 class VerticleDeployer {
   // TODO: this either needs to be "detected" or configurable somehow
   private val numberOfEventBusThreads = 12
@@ -26,15 +21,11 @@ class VerticleDeployer {
 
     val deploymentOptions = DeploymentOptions().setWorker(false).setConfig(config)
 
-    val companionKclass: KClass<*>? = kclass.companionObject
-    companionKclass?.let {
-      if (companionKclass.isSubclassOf(HasDeploymentOptions::class)) {
-        val verticleDeploymentOptions = kclass.companionObjectInstance as HasDeploymentOptions
-        if (verticleDeploymentOptions.percentOfBusThreads > 0) {
-          deploymentOptions.instances =
-            (verticleDeploymentOptions.percentOfBusThreads * numberOfEventBusThreads).toInt()
-        }
-      }
+    val percentage = kclass.findAnnotation<PercentOfEventBusThreadsVerticle>()
+
+    if (percentage != null) {
+      deploymentOptions.instances =
+        (percentage.percent / 100.0 * numberOfEventBusThreads).toInt()
     }
 
     val deploymentFuture = Future.future<String>()

@@ -8,7 +8,7 @@ import io.kotlintest.specs.*
 import java.time.*
 
 data class TestCreateTrialUserCommand(val email: String, val networkAddress: String,
-  val date: OffsetDateTime): DomainCommand
+  val date: OffsetDateTime): DomainCommand by DefaultDomainCommand()
 
 data class CommandList(val commands: List<DomainCommand>): SerializableVertxObject
 

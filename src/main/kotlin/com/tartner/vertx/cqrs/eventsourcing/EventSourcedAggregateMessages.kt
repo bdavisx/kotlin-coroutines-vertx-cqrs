@@ -32,14 +32,14 @@ sealed class EventSourcedAggregateMessages: SerializableVertxObject
 data class ApplySnapshotAndEventsFromLoadAggregateCommand(
   override val aggregateId: AggregateId, val possibleSnapshot: AggregateSnapshot?,
   val events: List<AggregateEvent>)
-  : EventSourcedAggregateMessages(), AggregateCommand
+  : EventSourcedAggregateMessages(), AggregateCommand by DefaultAggregateCommand(aggregateId)
 
 /**
  If an aggregate receives this, it has become invalid and should remove all registrations because
  it's going to get unloaded asap.
  */
 data class InvalidateAggregateCommand(override val aggregateId: AggregateId)
-  : EventSourcedAggregateMessages(), AggregateCommand
+  : EventSourcedAggregateMessages(), AggregateCommand by DefaultAggregateCommand(aggregateId)
 
 /**
  After handling the command, the aggregate should fire off this event, although it's not saved to

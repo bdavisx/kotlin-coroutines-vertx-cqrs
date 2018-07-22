@@ -39,16 +39,16 @@ class Validation<T>(val validations: Map<String, ChildValidation<T>>) {
     }
   }
 
-  fun validate(value: T): ValidationIssues? {
+  suspend fun validate(value: T): ValidationIssues? {
     val messages = mutableMapOf<String, List<String>>()
-    validations.forEach { map ->
-      val errors = map.value.validations
+    validations.forEach { validation: Map.Entry<String, ChildValidation<T>> ->
+      val errors = validation.value.validations
         .filter {!it.first.invoke(value)}
         .map { it.second }
         .takeIf { it.isNotEmpty() }
 
-      errors?.also {
-        messages[map.key] = it
+      errors?.also {it: List<String> ->
+        messages[validation.key] = it
       }
     }
 
@@ -85,12 +85,10 @@ class ValidationBuilder<T> {
 }
 
 class ChildValidation<T> {
-  var validations: MutableList<Pair<T.() -> Boolean, String>> = mutableListOf()
+  var validations: MutableList<Pair<suspend T.() -> Boolean, String>> = mutableListOf()
 
-  fun mustBe(validate: T.() -> Boolean) = validate
+  fun mustBe(validate: suspend T.() -> Boolean) = validate
 
-  infix fun (T.() -> Boolean).ifNot(error: String) {
-    validations.add(this to error)
-  }
+  infix fun (suspend T.() -> Boolean).ifNot(error: String) { validations.add(this to error) }
 }
 

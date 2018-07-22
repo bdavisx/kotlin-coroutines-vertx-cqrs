@@ -22,8 +22,17 @@ interface AggregateEvent: DomainEvent, HasAggregateVersion
 interface ErrorEvent: DomainEvent
 
 annotation class CommandHandler
-interface DomainCommand: SerializableVertxObject
+
+typealias CommandId = UUID
+interface DomainCommand: SerializableVertxObject {
+  val commandId: CommandId
+}
+open class DefaultDomainCommand(override val commandId: CommandId = UUID.randomUUID()): DomainCommand
+
 interface AggregateCommand: DomainCommand, HasAggregateId
+class DefaultAggregateCommand(override val aggregateId: AggregateId)
+  : DefaultDomainCommand(), AggregateCommand
+
 interface CommandResponse: SerializableVertxObject
 
 interface Query: SerializableVertxObject

@@ -22,16 +22,17 @@ data class RegisterInstantiationClassesForAggregateLocalCommand(
   val factory: AggregateVerticleFactory,
   val eventClasses: List<KClass<out AggregateEvent>>,
   val snapshotClasses: List<KClass<out AggregateSnapshot>>)
-  : DomainCommand
+  : DomainCommand by DefaultDomainCommand()
 
 data class LoadEventSourcedAggregateCommand(
   val aggregateId: AggregateId, val aggregateAddress: String):
-  DomainCommand
+  DomainCommand by DefaultDomainCommand()
 
 data class LoadEventSourcedAggregateCommandFailure(override val cause: Throwable)
   : CommandFailureDueToException
 
-internal object SharedEventSourcedAggregateRepositorySnapshotQuery: DomainCommand
+internal object SharedEventSourcedAggregateRepositorySnapshotQuery
+  : DomainCommand by DefaultDomainCommand()
 
 // TODO: See GeneralCqrsDesign.md for documentation on the class
 

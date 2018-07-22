@@ -11,6 +11,8 @@ import org.nustaq.serialization.*
 
 private const val defaultNodeId = "local"
 
+// TODO: need to make sure some of these shouldn't be set by the end user
+
 val libraryModule = Kodein.Module {
   constant("nodeId") with defaultNodeId
 

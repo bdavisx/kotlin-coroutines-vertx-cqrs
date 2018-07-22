@@ -6,6 +6,8 @@ import com.tartner.vertx.cqrs.*
 /**
  This interface is designed to be used by the EventSourcedAggregateCommandHandlerVerticle. It's not
  designed for "general" use.
+
+ It's not like the AddressStrategy interface either, this is about distributed aggregates.
  */
 interface AggregateAddressStrategy {
   fun isAggregateLocal(aggregateId: AggregateId): Boolean

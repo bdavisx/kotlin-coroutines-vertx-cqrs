@@ -5,6 +5,11 @@ import io.vertx.core.*
 import io.vertx.core.logging.*
 import io.vertx.core.spi.*
 import org.kodein.di.*
+import java.util.*
+
+/** By default, will deploy a single Verticle. */
+@Target(AnnotationTarget.CLASS)
+annotation class PercentOfEventBusThreadsVerticle(val percent: Byte)
 
 /**
   Represents verticle factory which uses Kodein for verticle creation.
@@ -26,7 +31,13 @@ class KodeinVerticleFactory(val kodein: Kodein): VerticleFactory {
     val verticleClass: Class<Any> = (classLoader.loadClass(verticleClassName) as Class<Any>?)!!
 
     log.debugIf { "Attempting to create the verticle class: '$name': class - $verticleClass" }
-    val verticleInstance = kodein.direct.AllProviders(TT(verticleClass)).first().invoke()
+
+    val verticleType = TT(verticleClass)
+
+    val uuidFactory = kodein.direct.FactoryOrNull(TT(UUID::class.java), verticleType)
+
+
+    val verticleInstance = kodein.direct.AllProviders(verticleType).first().invoke()
     return verticleInstance as Verticle
   }
 }
