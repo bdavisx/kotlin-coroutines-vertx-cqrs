@@ -9,6 +9,14 @@ import java.lang.reflect.*
 import java.util.concurrent.*
 import kotlin.reflect.*
 
+/*
+  Factory's job is to "register" the direct call verticle w/ the DI.
+
+  The deployer's job is create the verticle and deploy it.
+
+  So this one maybe shouldn't be called a factory
+ */
+
 /**
  * Creates specific DirectCallVerticle subclasses
  *

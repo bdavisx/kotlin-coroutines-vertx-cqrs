@@ -8,15 +8,18 @@ import com.tartner.vertx.kodein.*
 import org.kodein.di.*
 import org.kodein.di.generic.*
 import org.nustaq.serialization.*
+import java.util.*
 
 private const val defaultNodeId = "local"
 
 // TODO: need to make sure some of these shouldn't be set by the end user
+typealias UUIDGenerator=() -> UUID
 
 val libraryModule = Kodein.Module {
   constant("nodeId") with defaultNodeId
 
-  bind<VerticleDeployer>() with singleton { VerticleDeployer() }
+  // TODO: the 8 here is the Max # of verticles instances to deploy, so it needs to be a config value
+  bind<VerticleDeployer>() with singleton { VerticleDeployer(8, kodein) }
   bind<FSTConfiguration>() with singleton { FSTConfiguration.createDefaultConfiguration() }
   bind<TypedObjectMapper>() with singleton { TypedObjectMapper.default }
   bind<ExternalObjectMapper>() with singleton { ExternalObjectMapper.default }

@@ -46,7 +46,6 @@ class TestDirectCallVerticle(id: String): DirectCallVerticle(id) {
     log.debug("$prefix - Context deploymentId: ${context.deploymentID()}")
   }
 
-
   private suspend fun delay() {
     awaitEvent<Long> { vertx.setTimer((random.nextInt(50) + 1).toLong(), it) }
   }

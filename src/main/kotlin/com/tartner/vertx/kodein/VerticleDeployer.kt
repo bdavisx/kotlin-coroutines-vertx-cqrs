@@ -1,36 +1,84 @@
 package com.tartner.vertx.kodein
 
+import com.tartner.vertx.*
 import io.vertx.core.*
 import io.vertx.core.json.*
+import io.vertx.core.logging.*
+import org.kodein.di.*
+import java.util.*
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
-class VerticleDeployer {
-  // TODO: this either needs to be "detected" or configurable somehow
-  private val numberOfEventBusThreads = 12
+/** Used to calculate the # of verticles to deploy; default is 1 if this annotation isn't used. */
+@Target(AnnotationTarget.CLASS)
+annotation class PercentOfMaximumVerticleInstancesToDeploy(val percent: Short)
+
+data class VerticleDeployment<T: Verticle>(val instance: T, val deploymentId: String)
+
+/**
+ * By default, will deploy 1 Verticle instance, but if the verticle has the
+ * PercentOfMaximumVerticleInstancesToDeploy annotation, it will calculate the number of instances
+ * using that value.
+ */
+class VerticleDeployer(
+  public val maximumVerticleInstancesToDeploy: Int,
+  private val kodein: Kodein
+) {
+  private val log = LoggerFactory.getLogger(VerticleDeployer::class.java)
+
   private val defaultConfig = JsonObject()
 
-  fun deployVerticles(vertx: Vertx, kclasses: List<KClass<out Verticle>>): Future<CompositeFuture> =
-    CompositeFuture.all(kclasses.map { deployVerticle(vertx, it) })
+  suspend fun deployVerticles(vertx: Vertx, kclasses: List<KClass<out Verticle>>)
+    : List<Future<VerticleDeployment<Verticle>>> =
+      kclasses.flatMap { deployVerticle<Verticle>(vertx, it) }
 
-  fun deployVerticle(vertx: Vertx, kclass: KClass<out Verticle>): Future<String> =
-    deployVerticle(vertx, kclass, defaultConfig)
+  suspend fun <T: Verticle> deployVerticle(vertx: Vertx, kclass: KClass<out T>)
+    : List<Future<VerticleDeployment<T>>> = deployVerticle(vertx, kclass, defaultConfig)
 
-  fun deployVerticle(vertx: Vertx, kclass: KClass<out Verticle>, config: JsonObject): Future<String> {
-    val className = kclass.java.canonicalName
+  suspend fun <T: Verticle> deployVerticle(vertx: Vertx, kclass: KClass<out T>, config: JsonObject)
+    : List<Future<VerticleDeployment<T>>> {
 
     val deploymentOptions = DeploymentOptions().setWorker(false).setConfig(config)
 
-    val percentage = kclass.findAnnotation<PercentOfEventBusThreadsVerticle>()
+    log.debugIf { "Attempting to create the verticle class: ${kclass.qualifiedName}" }
 
-    if (percentage != null) {
-      deploymentOptions.instances =
-        (percentage.percent / 100.0 * numberOfEventBusThreads).toInt()
-    }
+    val percentage = kclass.findAnnotation<PercentOfMaximumVerticleInstancesToDeploy>()
+    val numberOfInstances = percentage?.let {
+      (percentage.percent / 100.0 * maximumVerticleInstancesToDeploy).toInt() } ?: 1
 
-    val deploymentFuture = Future.future<String>()
-    vertx.deployVerticle("kotlin-kodein:$className", deploymentOptions,
-      deploymentFuture.completer())
-    return deploymentFuture
+    log.debugIf { "Settings number of instances to ${numberOfInstances} for ${kclass.qualifiedName}"}
+
+    val verticleType = TT(kclass)
+
+    val uuidFactory = kodein.direct.FactoryOrNull(TT(UUID::class.java), verticleType)
+    val verticleFactory: () -> Verticle =
+      if (uuidFactory != null) {
+        log.debugIf { "Using a UUID factory to build the verticle" }
+        // if there's a UUID factory, we need to supply the UUID. This is generally done when deploying
+        // multiple instances of the same verticle
+        UUIDVerticleFactory(uuidFactory, UUID.randomUUID()).factory
+      } else {
+        log.debugIf { "Using a 'direct' factory to build the verticle" }
+        kodein.direct.AllProviders(verticleType).first()
+      }
+
+    val deploymentFutures = (1..numberOfInstances).map {
+      val deploymentFuture = Future.future<VerticleDeployment<T>>()
+      val verticle = verticleFactory()
+      vertx.deployVerticle(verticle, deploymentOptions) { result ->
+        if (result.succeeded()) {
+          deploymentFuture.complete(VerticleDeployment(verticle as T, result.result()))
+        } else {
+          deploymentFuture.fail(result.cause())
+        }
+      }
+      deploymentFuture
+    }.toList()
+    return deploymentFutures
+  }
+
+  private class UUIDVerticleFactory(
+    val verticleFactory: ((UUID) -> Verticle), uuid: UUID) {
+    val factory: () -> Verticle = { verticleFactory.invoke(uuid) }
   }
 }

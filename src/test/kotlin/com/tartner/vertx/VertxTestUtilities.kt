@@ -30,9 +30,6 @@ fun setupVertxKodein(modules: Iterable<Kodein.Module>, vertx: Vertx, testContext
   modulesWithVertx.addAll(modules)
   val injector = Kodein { modulesWithVertx.forEach { import(it) } }
 
-  val verticleFactory = KodeinVerticleFactory(injector)
-  vertx.registerVerticleFactory(verticleFactory)
-
   // TODO: these need to be in a startup class (not in test)
   vertx.eventBus().registerCodec(EventBusSerializationCodec(injector.i()))
 

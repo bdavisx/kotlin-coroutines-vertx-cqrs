@@ -6,6 +6,7 @@ import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.kodein.*
 import io.kotlintest.*
+import io.vertx.core.*
 import io.vertx.core.json.*
 import io.vertx.core.logging.*
 import io.vertx.ext.unit.TestContext
@@ -36,7 +37,9 @@ class EventSourcedAggregateRepositoryVerticleTest: AbstractVertxTest() {
         val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)
 
         val deployer: VerticleDeployer = kodein.i()
-        deployer.deployVerticle(vertx, EventSourcedAggregateRepositoryVerticle::class, configuration).await()
+        CompositeFuture.all(
+          deployer.deployVerticle(vertx, EventSourcedAggregateRepositoryVerticle::class, configuration))
+          .await()
 
         val aggregateIds = mutableListOf<AggregateId>()
         val factory: AggregateVerticleFactory = { id: AggregateId ->
