@@ -17,7 +17,7 @@ import io.vertx.core.eventbus.*
 @OpenForTesting
 class CommandSender {
   val deliveryOptions: DeliveryOptions = DeliveryOptions()
-    .setCodecName(EventBusSerializationCodec.codecName)
+    .setCodecName(EventBusJacksonJsonCodec.codecName)
     .setSendTimeout(5000)
 
   fun send(eventBus: EventBus, command: SerializableVertxObject) {

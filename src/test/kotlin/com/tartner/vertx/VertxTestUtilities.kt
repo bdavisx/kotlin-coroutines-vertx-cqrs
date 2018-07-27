@@ -31,7 +31,7 @@ fun setupVertxKodein(modules: Iterable<Kodein.Module>, vertx: Vertx, testContext
   val injector = Kodein { modulesWithVertx.forEach { import(it) } }
 
   // TODO: these need to be in a startup class (not in test)
-  vertx.eventBus().registerCodec(EventBusSerializationCodec(injector.i()))
+  vertx.eventBus().registerCodec(EventBusJacksonJsonCodec(injector.i()))
 
   vertx.eventBus().registerCodec(createPassThroughCodec<CodeMessage<*>>())
   vertx.eventBus().registerDefaultCodec(Either.Left::class.java, createPassThroughCodec<Either.Left<*,*>>())

@@ -5,8 +5,6 @@ import com.tartner.kamedon.validation.*
 import com.tartner.vertx.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
 
 sealed class TestEventSourcedAggregateCommands(): AggregateCommand
 sealed class TestEventSourcedAggregateEvents(): AggregateEvent

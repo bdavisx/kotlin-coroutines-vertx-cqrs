@@ -14,7 +14,7 @@ class EventBusJacksonJsonCodecTest: FeatureSpec() {
     feature("Encoding") {
       scenario("Encode/Decode a simple class") {
         val mapper = TypedObjectMapper()
-        val codec = EventBusJacksonJsonCodec<Test1>(mapper, Test1::class)
+        val codec = EventBusJacksonJsonCodec(mapper)
 
         val buffer: Buffer = BufferFactoryImpl().buffer()!!
         val test1 = Test1(UUID.randomUUID(), "Test1")
@@ -29,7 +29,7 @@ class EventBusJacksonJsonCodecTest: FeatureSpec() {
       }
       scenario("Encode/Decode a complex class that contains other classes") {
         val mapper = TypedObjectMapper()
-        val codec = EventBusJacksonJsonCodec<Test2>(mapper, Test2::class)
+        val codec = EventBusJacksonJsonCodec(mapper)
 
         val buffer: Buffer = BufferFactoryImpl().buffer()!!
         val test1 = Test1(UUID.randomUUID(), "Test1")

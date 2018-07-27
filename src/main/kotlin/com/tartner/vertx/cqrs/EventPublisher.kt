@@ -8,7 +8,7 @@ import io.vertx.core.eventbus.*
 @OpenForTesting
 class EventPublisher(val eventBus: EventBus) {
   val deliveryOptions: DeliveryOptions = DeliveryOptions()
-    .setCodecName(EventBusSerializationCodec.codecName)
+    .setCodecName(EventBusJacksonJsonCodec.codecName)
     .setSendTimeout(5000)
 
   fun publish(event: SerializableVertxObject) {

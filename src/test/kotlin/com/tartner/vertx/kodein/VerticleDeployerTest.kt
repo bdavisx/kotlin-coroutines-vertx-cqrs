@@ -4,7 +4,6 @@ import com.tartner.utilities.*
 import com.tartner.vertx.*
 import io.kotlintest.*
 import io.vertx.core.*
-import io.vertx.core.json.*
 import io.vertx.core.logging.*
 import io.vertx.ext.unit.TestContext
 import io.vertx.ext.unit.junit.*
@@ -68,10 +67,10 @@ class VerticleDeployerTest: AbstractVertxTest() {
         allFutures.succeeded() shouldBe true
 
         futures.map { it.result().deploymentId }.distinct().count() shouldBe expectedNumberOfVerticles
-        futures.map { (it.result().instance as MultipleDeploymentVerticle).localAddress }
+        futures.map { it.result().instance.localAddress }
           .distinct().count() shouldBe 1
 
-        val verticle = futures.first().result().instance as MultipleDeploymentVerticle
+        val verticle = futures.first().result().instance
         (1..expectedNumberOfVerticles).forEach { verticle.increment() }
         futures.forEach { it.result().instance.counter shouldBe 1 }
 

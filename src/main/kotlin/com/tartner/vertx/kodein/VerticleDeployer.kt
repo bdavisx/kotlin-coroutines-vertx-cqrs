@@ -44,7 +44,8 @@ class VerticleDeployer(
 
     val percentage = kclass.findAnnotation<PercentOfMaximumVerticleInstancesToDeploy>()
     val numberOfInstances = percentage?.let {
-      (percentage.percent / 100.0 * maximumVerticleInstancesToDeploy).toInt() } ?: 1
+      (percentage.percent / 100.0 * maximumVerticleInstancesToDeploy).toInt() }
+      ?: 1
 
     log.debugIf { "Settings number of instances to ${numberOfInstances} for ${kclass.qualifiedName}"}
 
