@@ -16,6 +16,7 @@
 
         <vertx.version>3.5.3</vertx.version>
         <jackson.version>2.9.6</jackson.version>
+        <kodein.version>5.2.0</kodein.version>
 
         <kotlinTest.version>3.1.8</kotlinTest.version>
         <junit.version>5.2.0</junit.version>
@@ -175,7 +176,12 @@
         <dependency>
             <groupId>org.kodein.di</groupId>
             <artifactId>kodein-di-generic-jvm</artifactId>
-            <version>5.0.0</version>
+            <version>${kodein.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kodein.di</groupId>
+            <artifactId>kodein-di-conf-jvm</artifactId>
+            <version>${kodein.version}</version>
         </dependency>
 
         <dependency>

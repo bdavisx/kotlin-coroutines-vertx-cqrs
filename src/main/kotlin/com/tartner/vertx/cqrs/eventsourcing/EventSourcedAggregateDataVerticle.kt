@@ -20,10 +20,11 @@ data class UnableToStoreAggregateEventsCommandFailure(override val message: Stri
   val source: Either<*,*>? = null): GeneralCommandFailure
 
 class EventSourcedAggregateDataVerticle(
-  localAddress: String,
   private val databaseClientFactory: EventSourcingClientFactory,
   private val databaseMapper: TypedObjectMapper
-): DirectCallVerticle(localAddress) {
+// TODO: we have to finish out the cluster address scheme
+): DirectCallVerticle(EventSourcedAggregateDataVerticle::class.qualifiedName!!) {
+
   companion object {
     private const val valuesReplacementText = "***REPLACE_WITH_VALUES***"
 

@@ -15,6 +15,8 @@ import io.vertx.kotlin.coroutines.*
 import kotlinx.coroutines.experimental.*
 import org.junit.*
 import org.junit.runner.*
+import org.kodein.di.*
+import org.kodein.di.generic.*
 import java.util.*
 
 data class TestCreateEvent(override val aggregateId: UUID, override val aggregateVersion: Long): AggregateEvent
@@ -38,7 +40,8 @@ class EventSourcedAggregateRepositoryVerticleTest: AbstractVertxTest() {
 
         val deployer: VerticleDeployer = kodein.i()
         CompositeFuture.all(
-          deployer.deployVerticle(vertx, EventSourcedAggregateRepositoryVerticle::class, configuration))
+          deployer.deployVerticles(vertx,
+            listOf(kodein.direct.instance<EventSourcedAggregateRepositoryVerticle>()), configuration))
           .await()
 
         val aggregateIds = mutableListOf<AggregateId>()

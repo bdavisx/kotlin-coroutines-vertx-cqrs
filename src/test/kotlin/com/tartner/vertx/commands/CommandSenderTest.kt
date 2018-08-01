@@ -39,7 +39,8 @@ class CommandSenderTest: AbstractVertxTest() {
     // sends an event, much simpler
     vertx.runOnContext { launch(vertx.dispatcher()) {
       val deployer: VerticleDeployer = kodein.i()
-      CompositeFuture.all(deployer.deployVerticle(vertx, CommandSenderTestVerticle::class)).await()
+      CompositeFuture.all(deployer.deployVerticles(vertx,
+        listOf(CommandSenderTestVerticle(kodein.i(), kodein.i())))).await()
 
       val sender: CommandSender = kodein.i()
       val command = DummyCommand(1)

@@ -29,50 +29,16 @@ class VerticleDeployerTest: AbstractVertxTest() {
 
         val deployer: VerticleDeployer = kodein.i()
 
-        val futures = deployer.deployVerticle(vertx, SimpleVerticle::class)
+        val futures = deployer.deployVerticles(vertx, listOf(SimpleVerticle()))
 
         futures.count() shouldBe 1
 
-        val deploymentFuture: Future<VerticleDeployment<SimpleVerticle>> = futures.first()
+        val deploymentFuture: Future<VerticleDeployment> = futures.first()
         val deployment = deploymentFuture.await()
 
         deploymentFuture.succeeded() shouldBe true
         deployment.deploymentId.isBlank() shouldBe false
         log.debug(deployment)
-
-        async.complete()
-      } catch(ex: Throwable) {
-        context.fail(ex)
-      }
-    }}
-  }
-
-  @Test(timeout = 2500)
-  fun multipleDeployments(context: TestContext) {
-    val async = context.async()
-    vertx.exceptionHandler(context.exceptionHandler())
-
-    vertx.runOnContext { launch(vertx.dispatcher()) {
-      try {
-        val kodein = setupVertxKodein(listOf(testModule), vertx, context)
-
-        val deployer: VerticleDeployer = kodein.i()
-
-        val futures = deployer.deployVerticle(vertx, MultipleDeploymentVerticle::class)
-
-        val expectedNumberOfVerticles = 4
-        futures.count() shouldBe expectedNumberOfVerticles
-
-        val allFutures = CompositeFuture.all(futures).await()
-        allFutures.succeeded() shouldBe true
-
-        futures.map { it.result().deploymentId }.distinct().count() shouldBe expectedNumberOfVerticles
-        futures.map { it.result().instance.localAddress }
-          .distinct().count() shouldBe 1
-
-        val verticle = futures.first().result().instance
-        (1..expectedNumberOfVerticles).forEach { verticle.increment() }
-        futures.forEach { it.result().instance.counter shouldBe 1 }
 
         async.complete()
       } catch(ex: Throwable) {

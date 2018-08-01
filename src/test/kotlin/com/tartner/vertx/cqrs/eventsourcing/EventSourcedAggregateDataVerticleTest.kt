@@ -35,8 +35,8 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
         deploymentOptions.config = configuration
 
         val deployer: VerticleDeployer = injector.i()
-        val factory = injector.direct.factory<String, EventSourcedAggregateDataVerticle>()
-        val verticle: EventSourcedAggregateDataVerticle = factory(UUID.randomUUID().toString())
+        val provider = injector.direct.provider<EventSourcedAggregateDataVerticle>()
+        val verticle: EventSourcedAggregateDataVerticle = provider()
         awaitResult<String> { vertx.deployVerticle(verticle, deploymentOptions, it) }
 
         val commandSender: CommandSender = injector.i()
@@ -90,8 +90,8 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
         deploymentOptions.config = configuration
 
         val deployer: VerticleDeployer = injector.i()
-        val factory = injector.direct.factory<String, EventSourcedAggregateDataVerticle>()
-        val verticle: EventSourcedAggregateDataVerticle = factory(UUID.randomUUID().toString())
+        val provider = injector.direct.provider<EventSourcedAggregateDataVerticle>()
+        val verticle: EventSourcedAggregateDataVerticle = provider()
         awaitResult<String> { vertx.deployVerticle(verticle, deploymentOptions, it) }
 
         val commandSender: CommandSender = injector.i()

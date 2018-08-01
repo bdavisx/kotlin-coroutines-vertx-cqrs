@@ -19,6 +19,10 @@ open class DirectCallVerticle(val localAddress: String): CoroutineVerticle() {
   companion object {
     val codeDeliveryOptions = DeliveryOptions()
     init { codeDeliveryOptions.codecName = CodeMessage::class.qualifiedName }
+
+    fun isDirectCallVerticle(jvmType: Class<*>) =
+      DirectCallVerticle::class.java.isAssignableFrom(jvmType)
+
   }
 
   override suspend fun start() {
