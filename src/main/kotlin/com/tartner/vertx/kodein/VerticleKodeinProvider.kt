@@ -3,9 +3,12 @@ package com.tartner.vertx.kodein
 import com.tartner.vertx.*
 import io.vertx.core.*
 import io.vertx.core.logging.*
+import org.kodein.di.*
 import java.util.concurrent.*
 import kotlin.reflect.*
 import kotlin.reflect.full.*
+
+inline fun DKodeinAware.v() = dkodein.Instance(TT(VerticleKodeinProvider::class))
 
 /**
  * We need to create a certain # of verticles that are deployed (or will be deployed),
@@ -14,7 +17,7 @@ import kotlin.reflect.full.*
 class VerticleKodeinProvider(public val maximumVerticleInstancesToDeploy: Int) {
   private val log = LoggerFactory.getLogger(VerticleKodeinProvider::class.java)
   private val verticleClassToVerticles = ConcurrentHashMap<KClass<out Verticle>, List<Verticle>>()
-  private val verticleClassesInOrder = mutableListOf<KClass<out Verticle>>()
+  private val verticlesInOrder = ConcurrentLinkedQueue<Verticle>()
 
   private fun containsVerticleClass(verticleClass: KClass<out Verticle>) =
     verticleClassToVerticles.containsKey(verticleClass)
@@ -22,7 +25,7 @@ class VerticleKodeinProvider(public val maximumVerticleInstancesToDeploy: Int) {
   private fun verticle(verticleClass: KClass<out Verticle>) =
     verticleClassToVerticles[verticleClass]!!.first()
 
-  fun verticlesToDeploy() = verticleClassToVerticles.flatMap {it.value}
+  fun verticlesToDeploy() = verticlesInOrder
 
   // TODO: should this by "synchronized" or is that handled by Kodein?
   fun <T: Verticle> create(verticleClass: KClass<T>, factory: () -> T): T {
@@ -30,18 +33,30 @@ class VerticleKodeinProvider(public val maximumVerticleInstancesToDeploy: Int) {
 
     log.debugIf { "Attempting to create the verticle class: ${verticleClass.qualifiedName}" }
 
-    val percentage = verticleClass.findAnnotation<PercentOfMaximumVerticleInstancesToDeploy>()
-    val numberOfInstances = percentage?.let {
-      (percentage.percent / 100.0 * maximumVerticleInstancesToDeploy).toInt() }
-      ?: 1
-
-    log.debugIf { "Settings number of instances to ${numberOfInstances} for ${verticleClass.qualifiedName}"}
+    val numberOfInstances: Int = determineNumberOfVerticleInstances(verticleClass)
 
     val verticles = (1..numberOfInstances).map { factory() }
     // TODO: we must go thru and deploy these verticles once we're done
     verticleClassToVerticles[verticleClass] = verticles
-    verticleClassesInOrder.add(verticleClass)
+    verticlesInOrder.addAll(verticles)
     return verticles.first()
+  }
+
+  fun <T: Verticle> determineNumberOfVerticleInstances(verticleClass: KClass<T>): Int {
+    val percentageAnnotation = verticleClass.findAnnotation<PercentOfMaximumVerticleInstancesToDeploy>()
+    val numberOfInstances: Int = if (percentageAnnotation != null) {
+      (percentageAnnotation.percent / 100.0 * maximumVerticleInstancesToDeploy).toInt()
+    } else {
+      val countAnnotation = verticleClass.findAnnotation<SpecificNumberOfVerticleInstancesToDeploy>()
+      if (countAnnotation != null) {
+        countAnnotation.count
+      } else {
+        1
+      }
+    }
+
+    log.debugIf { "Settings number of instances to ${numberOfInstances} for ${verticleClass.qualifiedName}" }
+    return numberOfInstances
   }
 }
 

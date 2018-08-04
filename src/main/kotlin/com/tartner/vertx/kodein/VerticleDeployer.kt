@@ -9,6 +9,9 @@ import org.kodein.di.*
 @Target(AnnotationTarget.CLASS)
 annotation class PercentOfMaximumVerticleInstancesToDeploy(val percent: Short)
 
+@Target(AnnotationTarget.CLASS)
+annotation class SpecificNumberOfVerticleInstancesToDeploy(val count: Int)
+
 data class VerticleDeployment(val instance: Verticle, val deploymentId: String)
 
 /**
