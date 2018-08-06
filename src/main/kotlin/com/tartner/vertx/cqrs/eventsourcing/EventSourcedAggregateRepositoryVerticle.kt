@@ -7,7 +7,10 @@ import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
 import io.vertx.core.*
 import io.vertx.core.eventbus.*
+import io.vertx.core.logging.*
 import io.vertx.core.shareddata.*
+import io.vertx.ext.sql.*
+import io.vertx.kotlin.core.json.*
 import io.vertx.kotlin.coroutines.*
 import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*
@@ -46,6 +49,7 @@ class EventSourcedAggregateRepositoryVerticle(
   private val commandSender: CommandSender,
   private val commandRegistrar: CommandRegistrar
 ): CoroutineVerticle() {
+  private val log = LoggerFactory.getLogger(EventSourcedAggregateRepositoryVerticle::class.java)
 
   override suspend fun start() {
     commandRegistrar.registerLocalCommandHandler(
@@ -105,45 +109,41 @@ class EventSourcedAggregateRepositoryVerticle(
   }
 
   private suspend fun loadAggregateFromStorage(
-    aggregateId: AggregateId, command: LoadEventSourcedAggregateCommand)
-    : Either<CommandFailedDueToException, Unit> {
+    aggregateId: AggregateId, command: LoadEventSourcedAggregateCommand) {
 
-    val snapshotEither: Either<CommandFailedDueToException, AggregateSnapshot?> =
-      dataVerticle.loadLatestAggregateSnapshot(aggregateId)
+    val possibleSnapshot = awaitMessageEitherResult<AggregateSnapshot?> {
+      commandSender.send(eventBus, LoadLatestAggregateSnapshotCommand(aggregateId), it)
+    }
 
-    return snapshotEither.flatMapS { possibleSnapshot ->
-      // if snapshot then get it's version + 1, otherwise use 0 (-1 + 1)
-      val aggregateVersion = (possibleSnapshot?.aggregateVersion ?: -1) + 1
+    // if snapshot then get it's version + 1, otherwise use 0 (-1 + 1)
+    val aggregateVersion = (possibleSnapshot?.aggregateVersion ?: -1) + 1
 
-      val eventsEither: Either<CommandFailedDueToException, List<AggregateEvent>> =
-        dataVerticle.loadAggregateEvents(aggregateId, aggregateVersion)
+    val events: List<AggregateEvent> = awaitMessageEitherResult {
+      commandSender.send(eventBus, LoadAggregateEventsCommand(aggregateId, aggregateVersion), it)
+    }
+    val snapshotOrEvent: HasAggregateVersion = possibleSnapshot ?: events.first()
 
-      eventsEither.mapS { events ->
-        val snapshotOrEvent: HasAggregateVersion = possibleSnapshot ?: events.first()
+    val verticleFactory: AggregateVerticleFactory? = sharedRepositoryData.findFactory(
+      snapshotOrEvent::class)
 
-        val verticleFactory: AggregateVerticleFactory? = sharedRepositoryData.findFactory(
-          snapshotOrEvent::class)
-
-        // TODO: better error handling/reporting here
-        val deploymentId = when (verticleFactory) {
-          null -> throw UnableToFindAggregateFactoryException(snapshotOrEvent)
-          else -> {
-            awaitResult<String> {
-              val verticle = verticleFactory.invoke(snapshotOrEvent.aggregateId)
-              vertx.deployVerticle(verticle, it)
-            }
-          }
-        }
-
-        sharedRepositoryData.addAggregateDeployment(aggregateId, deploymentId)
-
-        // TODO: need to handle this in Event delegate - or the event delegate needs to register
-        // the aggregate to handle the command
-        val eventsApplication = awaitMessageEitherResult<Any> {
-          commandSender.send(eventBus, command.aggregateAddress,
-            ApplySnapshotAndEventsFromLoadAggregateCommand(aggregateId, possibleSnapshot, events), it)
+    // TODO: better error handling/reporting here
+    val deploymentId = when (verticleFactory) {
+      null -> throw UnableToFindAggregateFactoryException(snapshotOrEvent)
+      else -> {
+        awaitResult<String> {
+          val verticle = verticleFactory.invoke(snapshotOrEvent.aggregateId)
+          vertx.deployVerticle(verticle, it)
         }
       }
+    }
+
+    sharedRepositoryData.addAggregateDeployment(aggregateId, deploymentId)
+
+    // TODO: need to handle this in Event delegate - or the event delegate needs to register
+    // the aggregate to handle the command
+    val eventsApplication = awaitMessageEitherResult<Any> {
+      commandSender.send(eventBus, command.aggregateAddress,
+        ApplySnapshotAndEventsFromLoadAggregateCommand(aggregateId, possibleSnapshot, events), it)
     }
   }
 

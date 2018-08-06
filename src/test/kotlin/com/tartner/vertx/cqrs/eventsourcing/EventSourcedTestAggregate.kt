@@ -3,8 +3,13 @@ package com.tartner.vertx.cqrs.eventsourcing
 import arrow.core.*
 import com.tartner.kamedon.validation.*
 import com.tartner.vertx.*
+import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
+import io.vertx.core.Handler
+import io.vertx.core.eventbus.*
+import io.vertx.kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
 
 sealed class TestEventSourcedAggregateCommands(): AggregateCommand
 sealed class TestEventSourcedAggregateEvents(): AggregateEvent
@@ -34,10 +39,19 @@ interface TestEventSourcedAggregateQuery {
 class EventSourcedTestAggregate(
   private val aggregateId: AggregateId,
   private val eventSourcingDelegate: EventSourcingDelegate,
-  private val testEventSourcedAggregateQuery: TestEventSourcedAggregateQuery
-): DirectCallVerticle() {
+  private val testEventSourcedAggregateQuery: TestEventSourcedAggregateQuery,
+  private val commandRegistrar: CommandRegistrar,
+  private val commandSender: CommandSender
+): CoroutineVerticle() {
 
   private lateinit var name: String
+
+  override suspend fun start() {
+    super.start()
+    commandRegistrar.registerLocalCommandHandler<CreateEventSourcedTestAggregateCommand>(eventBus,
+      CreateEventSourcedTestAggregateCommand::class,
+      Handler {it -> launch(vertx.dispatcher()) {createAggregate(it)}})
+  }
 
   private fun applyEvents(events: List<TestEventSourcedAggregateEvents>) {
     events.forEach { event ->
@@ -48,9 +62,8 @@ class EventSourcedTestAggregate(
     }
   }
 
-  suspend fun createAggregate(command: CreateEventSourcedTestAggregateCommand)
-    : Either<FailureReply, List<TestEventSourcedAggregateEvents>> = actAndReply {
-
+  suspend fun createAggregate(commandMessage: Message<CreateEventSourcedTestAggregateCommand>) {
+    val command = commandMessage.body()
     val possibleEvents = validateCreateCommand(command).flatMap { validatedCommand ->
       val aggregateVersion = eventSourcingDelegate.firstVersion(validatedCommand)
       aggregateVersion.fold(
@@ -65,7 +78,7 @@ class EventSourcedTestAggregate(
       eventSourcingDelegate.storeAndPublishEvents(it, eventBus)
     }
 
-    possibleEvents
+    commandSender.reply(commandMessage, possibleEvents.createRight())
   }
 
   suspend fun updateName(command: ChangeEventSourcedTestAggregateNameCommand) {

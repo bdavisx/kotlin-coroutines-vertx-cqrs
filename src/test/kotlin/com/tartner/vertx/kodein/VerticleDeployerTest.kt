@@ -2,6 +2,8 @@ package com.tartner.vertx.kodein
 
 import com.tartner.utilities.*
 import com.tartner.vertx.*
+import com.tartner.vertx.commands.*
+import com.tartner.vertx.cqrs.*
 import io.kotlintest.*
 import io.vertx.core.*
 import io.vertx.core.logging.*
@@ -50,10 +52,12 @@ class VerticleDeployerTest: AbstractVertxTest() {
 
 val testModule = Kodein.Module {
   bind<SimpleVerticle>() with provider { SimpleVerticle() }
-  bind<MultipleDeploymentVerticle>() with factory {id: UUID -> MultipleDeploymentVerticle(id)}
+  bind<MultipleDeploymentVerticle>() with factory {id: UUID -> MultipleDeploymentVerticle(i())}
 }
 
 class SimpleVerticle(): CoroutineVerticle()
+
+class IncrementCommand(): DomainCommand by DefaultDomainCommand()
 
 /*
  * In general, you *don't* want to have any local data that is variable on the multiple deployment
@@ -63,16 +67,24 @@ class SimpleVerticle(): CoroutineVerticle()
  * one you expect when the code runs.
  */
 @PercentOfMaximumVerticleInstancesToDeploy(50)
-class MultipleDeploymentVerticle(id: UUID): DirectCallVerticle(id.toStringFast()) {
+class MultipleDeploymentVerticle(
+  private val commandRegistrar: CommandRegistrar
+): CoroutineVerticle() {
   private val log = LoggerFactory.getLogger(MultipleDeploymentVerticle::class.java)
   var counter: Int = 0  // DON'T usually want anything like this in a multi instance verticle
 
-  suspend fun increment() = act {
+  override suspend fun start() {
+    super.start()
+    commandRegistrar.registerLocalCommandHandler(eventBus, IncrementCommand::class,
+      Handler {increment()})
+  }
+
+  fun increment() {
     log.debug("Incrementing counter")
-    (it as MultipleDeploymentVerticle).counter++
+    counter++
   }
 
   override fun toString(): String {
-    return "MultipleDeploymentVerticle(localAddress=$localAddress; counter=$counter)"
+    return "MultipleDeploymentVerticle(counter=$counter)"
   }
 }

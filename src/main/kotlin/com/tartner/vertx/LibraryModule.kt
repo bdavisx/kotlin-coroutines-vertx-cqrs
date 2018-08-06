@@ -33,6 +33,6 @@ val libraryModule = Kodein.Module("kotlin-coroutines-vertx-cqrs module") {
 
   bind<SharedEventSourcedAggregateRepositoryData>() with singleton { SharedEventSourcedAggregateRepositoryData() }
 
-  bind<EventSourcedAggregateDataVerticle>() with provider { EventSourcedAggregateDataVerticle(i(), i()) }
+  bind<EventSourcedAggregateDataVerticle>() with provider { EventSourcedAggregateDataVerticle(i(), i(), i(), i()) }
   bind<EventSourcedAggregateRepositoryVerticle>() with provider { EventSourcedAggregateRepositoryVerticle(i(), i(), i(), i()) }
 }

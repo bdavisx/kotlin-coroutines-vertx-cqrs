@@ -2,6 +2,7 @@ package com.tartner.vertx.cqrs.eventsourcing
 
 import arrow.core.*
 import com.tartner.utilities.*
+import com.tartner.vertx.*
 import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
@@ -24,7 +25,6 @@ data class CreateAggregateVersionFailed(val errorEvent: ErrorEvent): FailureRepl
 class EventSourcingDelegate(
   private val aggregateId: AggregateId,
   private val vertx: Vertx,
-  private val eventSourcingData: EventSourcedAggregateDataVerticle,
   private val commandRegistrar: CommandRegistrar,
   private val commandSender: CommandSender,
   private val eventBus: EventBus,
@@ -100,8 +100,8 @@ class EventSourcingDelegate(
   suspend fun storeAndPublishEvents(events: List<AggregateEvent>, eventBus: EventBus):
     Either<FailureReply, SuccessReply> {
 
-    val storeResult: Either<FailureReply, SuccessReply> =
-      eventSourcingData.storeAggregateEvents(aggregateId, events)
+    val storeResult: Either<FailureReply, SuccessReply> = awaitMessageEitherResult {
+      commandSender.send(eventBus, StoreAggregateEventsCommand(aggregateId, events), it) }
 
     return storeResult.foldS({
       // TODO: error message

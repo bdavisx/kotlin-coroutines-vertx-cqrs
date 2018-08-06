@@ -21,13 +21,16 @@ interface AggregateEvent: DomainEvent, HasAggregateVersion
 /** This indicates an error happened that needs to be handled at a higher/different level. */
 interface ErrorEvent: DomainEvent
 
+typealias CorrelationId = UUID
+interface HasCorrelationId {
+  val correlationId: CorrelationId
+}
+
 annotation class CommandHandler
 
-typealias CommandId = UUID
-interface DomainCommand: SerializableVertxObject {
-  val commandId: CommandId
-}
-open class DefaultDomainCommand(override val commandId: CommandId = UUID.randomUUID()): DomainCommand
+interface DomainCommand: SerializableVertxObject, HasCorrelationId
+/** Implements a random UUID for the correlationId. */
+open class DefaultDomainCommand(override val correlationId: CorrelationId = UUID.randomUUID()): DomainCommand
 
 interface AggregateCommand: DomainCommand, HasAggregateId
 class DefaultAggregateCommand(override val aggregateId: AggregateId)

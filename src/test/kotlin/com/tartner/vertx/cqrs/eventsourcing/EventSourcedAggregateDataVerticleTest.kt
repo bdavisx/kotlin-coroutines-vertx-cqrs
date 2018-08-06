@@ -8,6 +8,7 @@ import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.kodein.*
 import io.kotlintest.*
 import io.vertx.core.*
+import io.vertx.core.eventbus.*
 import io.vertx.core.json.*
 import io.vertx.ext.unit.TestContext
 import io.vertx.ext.unit.junit.*
@@ -24,33 +25,35 @@ import kotlin.system.*
 @RunWith(VertxUnitRunner::class)
 class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
   @Test(timeout = 2500)
-  fun snapshotInsertAndQuery(context: io.vertx.ext.unit.TestContext) {
+  fun snapshotInsertAndQuery(context: TestContext) {
     val async = context.async()
 
     vertx.runOnContext { launch(vertx.dispatcher()) {
       try {
-        val injector = setupVertxKodein(listOf(), vertx, context)
-        val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)
-        val deploymentOptions = DeploymentOptions()
-        deploymentOptions.config = configuration
+        val injector = setupVertxKodein(listOf(), vertx, context).direct
+        val configuration: JsonObject = buildConfiguration()
 
-        val deployer: VerticleDeployer = injector.i()
-        val provider = injector.direct.provider<EventSourcedAggregateDataVerticle>()
-        val verticle: EventSourcedAggregateDataVerticle = provider()
-        awaitResult<String> { vertx.deployVerticle(verticle, deploymentOptions, it) }
+        val deployer: VerticleDeployer = injector.instance()
+        val verticle = injector.i<EventSourcedAggregateDataVerticle>()
+        CompositeFuture.all(deployer.deployVerticles(vertx, listOf(verticle), configuration)).await()
 
-        val commandSender: CommandSender = injector.i()
-        val commandRegistrar: CommandRegistrar = injector.i()
+        val commandSender: CommandSender = injector.instance()
+        val commandRegistrar: CommandRegistrar = injector.instance()
 
         val runtimeInMilliseconds = measureTimeMillis {
           val aggregateId = UUID.randomUUID()
           val snapshot = TestSnapshot(aggregateId, 1, "This is test data")
 
-
-          val addResult = verticle.storeAggregateSnapshot(snapshot)
+          val addCommand = StoreAggregateSnapshotCommand(snapshot)
+          val addResult = awaitResult<Message<Either<*, *>>> {
+            commandSender.send(vertx.eventBus(), addCommand, it)
+          }.body()
           context.assertTrue(addResult is Either.Right)
 
-          val loadResult = verticle.loadLatestAggregateSnapshot(aggregateId)
+          val loadCommand = LoadLatestAggregateSnapshotCommand(aggregateId)
+          val loadResult = awaitMessageResult<Either<FailureReply, AggregateSnapshot?>> {
+            commandSender.send(vertx.eventBus(), loadCommand, it)
+          }
 
           when (loadResult) {
             is Either.Left -> context.fail()
@@ -64,7 +67,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
             }
           }
 
-          val databaseUtils: DatabaseTestUtilities = injector.i()
+          val databaseUtils: DatabaseTestUtilities = injector.instance()
           databaseUtils.runUpdateSql(
             "delete from event_sourcing.snapshots where aggregate_id = ? and version_number = ?",
             JsonArray(aggregateId, 1), vertx, configuration)
@@ -78,24 +81,21 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
     }}
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 2500)
   fun eventsInsertAndQuery(context: TestContext) {
     val async = context.async()
 
     vertx.runOnContext { launch(vertx.dispatcher()) {
       try {
-        val injector = setupVertxKodein(listOf(), vertx, context)
-        val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)
-        val deploymentOptions = DeploymentOptions()
-        deploymentOptions.config = configuration
+        val injector = setupVertxKodein(listOf(), vertx, context).direct
+        val configuration: JsonObject = buildConfiguration()
 
-        val deployer: VerticleDeployer = injector.i()
-        val provider = injector.direct.provider<EventSourcedAggregateDataVerticle>()
-        val verticle: EventSourcedAggregateDataVerticle = provider()
-        awaitResult<String> { vertx.deployVerticle(verticle, deploymentOptions, it) }
+        val deployer: VerticleDeployer = injector.instance()
+        val verticle = injector.i<EventSourcedAggregateDataVerticle>()
+        CompositeFuture.all(deployer.deployVerticles(vertx, listOf(verticle), configuration)).await()
 
-        val commandSender: CommandSender = injector.i()
-        val commandRegistrar: CommandRegistrar = injector.i()
+        val commandSender: CommandSender = injector.instance()
+        val commandRegistrar: CommandRegistrar = injector.instance()
 
         val runtimeInMilliseconds = measureTimeMillis {
           val aggregateId = UUID.randomUUID()
@@ -107,11 +107,17 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
             events.add(EventSourcedTestAggregateNameChanged(aggregateId, aggregateVersion++, "New Name"))
           }
 
-          val addResult = verticle.storeAggregateEvents(aggregateId, events)
+          val addCommand = StoreAggregateEventsCommand(aggregateId, events)
+          val addResult = awaitResult<Message<Either<*, *>>> {
+            commandSender.send(vertx.eventBus(), addCommand, it)
+          }.body()
           context.assertTrue(addResult is Either.Right)
 
-          val loadResult =
-            verticle.loadAggregateEvents(aggregateId, EventSourcingDelegate.initialVersion)
+          val loadCommand =
+            LoadAggregateEventsCommand(aggregateId, EventSourcingDelegate.initialVersion)
+          val loadResult = awaitMessageResult<Either<FailureReply, List<AggregateEvent>>> {
+            commandSender.send(vertx.eventBus(), loadCommand, it)
+          }
 
           when (loadResult) {
             is Either.Left -> context.fail(loadResult.a.toString())
@@ -121,7 +127,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
                 context.fail("No events were returned")
               }
 
-              loadedEvents shouldBe events
+              loadedEvents shouldEqual events
             }
           }
         }
@@ -132,6 +138,12 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
         context.fail(ex)
       }
     }}
+  }
+
+  suspend fun buildConfiguration(): JsonObject {
+    val retriever = TestConfigurationDefaults.buildDefaultRetriever(vertx)
+    val configuration: JsonObject = awaitResult { h -> retriever.getConfig(h) }
+    return configuration
   }
 }
 
