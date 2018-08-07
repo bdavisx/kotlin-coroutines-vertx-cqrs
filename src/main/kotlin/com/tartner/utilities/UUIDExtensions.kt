@@ -67,8 +67,8 @@ private fun buildLookup(): LongArray {
 
 // FROM STRING
 
-fun uuidFromString(str: String): UUID {
-  val len = str.length
+fun String.toUUID(): UUID {
+  val len = this.length
   if (len != 36) {
     throw IllegalArgumentException("Invalid UUID string (expected to be 36 characters long)")
   }
@@ -76,16 +76,16 @@ fun uuidFromString(str: String): UUID {
   var shift = 60
   var index = 0
   for (i in 0 until len) {
-    val c = str[i].toInt()
+    val c = this[i].toInt()
     if (c >= lookup.size || lookup[c] == ERROR.toLong()) {
       throw IllegalArgumentException(
-        "Invalid UUID string (unexpected '" + str[i] + "' at position " + i + " -> " + str + " )")
+        "Invalid UUID string (unexpected '${this[i]}' at position $i -> $this)")
     }
 
     if (lookup[c] == DASH.toLong()) {
       if ((i - 8) % 5 != 0) {
         throw IllegalArgumentException(
-          "Invalid UUID string (unexpected '-' at position $i -> $str )")
+          "Invalid UUID string (unexpected '-' at position $i -> $this )")
       }
       continue
     }

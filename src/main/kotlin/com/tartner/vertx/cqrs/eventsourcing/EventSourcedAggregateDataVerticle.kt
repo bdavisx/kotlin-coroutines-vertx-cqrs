@@ -168,7 +168,7 @@ class EventSourcedAggregateDataVerticle(
         commandSender.reply(commandMessage, successReplyRight)
         }
       } catch (ex: Throwable) {
-      commandSender.reply(commandMessage, CommandFailedDueToException(ex).createLeft())
+        commandSender.reply(commandMessage, CommandFailedDueToException(ex).createLeft())
       }
     }
 
