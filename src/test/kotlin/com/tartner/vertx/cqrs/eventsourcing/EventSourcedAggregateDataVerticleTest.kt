@@ -24,7 +24,7 @@ import kotlin.system.*
 
 @RunWith(VertxUnitRunner::class)
 class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
-  @Test(timeout = 3500)
+  @Test(timeout = 5000)
   fun snapshotInsertAndQuery(context: TestContext) {
     val async = context.async()
 
@@ -80,7 +80,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
     }}
   }
 
-  @Test(timeout = 3500)
+  @Test(timeout = 5000)
   fun eventsInsertAndQuery(context: TestContext) {
     val async = context.async()
 

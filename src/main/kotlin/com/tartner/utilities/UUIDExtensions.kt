@@ -65,8 +65,6 @@ private fun buildLookup(): LongArray {
   return lu
 }
 
-// FROM STRING
-
 fun String.toUUID(): UUID {
   val len = this.length
   if (len != 36) {
