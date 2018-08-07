@@ -35,6 +35,7 @@ class EventSourcedAggregateAutoRegistrarScanner(
     val aggregateClasses = reflections.getTypesAnnotatedWith(
       EventSourcedAggregate::class.java)
 
+    @Suppress("UNCHECKED_CAST")
     aggregateClasses.forEach { javaClass: Class<*> ->
       val creationHandlers =
         javaClass.kotlin.members.filter { it.findAnnotation<CreationHandler>() != null }

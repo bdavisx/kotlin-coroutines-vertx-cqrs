@@ -24,7 +24,7 @@ import kotlin.system.*
 
 @RunWith(VertxUnitRunner::class)
 class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
-  @Test(timeout = 2500)
+  @Test(timeout = 3500)
   fun snapshotInsertAndQuery(context: TestContext) {
     val async = context.async()
 
@@ -38,7 +38,6 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
         CompositeFuture.all(deployer.deployVerticles(vertx, listOf(verticle), configuration)).await()
 
         val commandSender: CommandSender = injector.instance()
-        val commandRegistrar: CommandRegistrar = injector.instance()
 
         val runtimeInMilliseconds = measureTimeMillis {
           val aggregateId = UUID.randomUUID()
@@ -81,7 +80,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
     }}
   }
 
-  @Test(timeout = 2500)
+  @Test(timeout = 3500)
   fun eventsInsertAndQuery(context: TestContext) {
     val async = context.async()
 
@@ -95,7 +94,6 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
         CompositeFuture.all(deployer.deployVerticles(vertx, listOf(verticle), configuration)).await()
 
         val commandSender: CommandSender = injector.instance()
-        val commandRegistrar: CommandRegistrar = injector.instance()
 
         val runtimeInMilliseconds = measureTimeMillis {
           val aggregateId = UUID.randomUUID()
@@ -103,8 +101,9 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
           val events = mutableListOf<AggregateEvent>()
           var aggregateVersion: Long = 0
           for (i in 1..1000) {
-            events.add(EventSourcedTestAggregateCreated(aggregateId, aggregateVersion++, "Name"))
-            events.add(EventSourcedTestAggregateNameChanged(aggregateId, aggregateVersion++, "New Name"))
+            val correlationId = UUID.randomUUID()
+            events.add(EventSourcedTestAggregateCreated(aggregateId, aggregateVersion++, "Name", correlationId))
+            events.add(EventSourcedTestAggregateNameChanged(aggregateId, aggregateVersion++, "New Name", correlationId))
           }
 
           val addCommand = StoreAggregateEventsCommand(aggregateId, events)
@@ -127,7 +126,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
                 context.fail("No events were returned")
               }
 
-              loadedEvents shouldEqual events
+              loadedEvents shouldBe events
             }
           }
         }

@@ -69,19 +69,21 @@ class EventSourcingDelegate(
   fun firstVersion(command: DomainCommand): Either<ErrorEvent, Long> =
     if (version == initialVersion) {
       version++
-      Either.right(version)
+      version.createRight()
     }
     else {
-      Either.left(AttemptToInitializeAlreadyInitializedAggregateEvent(aggregateId, command))
+      AttemptToInitializeAlreadyInitializedAggregateEvent(
+        aggregateId, command, command.correlationId).createLeft()
     }
 
   fun nextVersion(command: DomainCommand): Either<ErrorEvent, Long> =
     if (version != initialVersion) {
       version++
-      Either.right(version)
+      version.createRight()
     }
     else {
-      Either.left(AttemptToSendCommandToUninitializedAggregateEvent(aggregateId, command))
+      AttemptToSendCommandToUninitializedAggregateEvent(aggregateId, command, command.correlationId)
+        .createLeft()
     }
 
   /** Note this does not persist the event, only publishes and replies to the message with it. */

@@ -24,10 +24,10 @@ class VerticleDeployer(private val kodein: Kodein) {
 
   private val defaultConfig = JsonObject()
 
-  fun deployVerticles(vertx: Vertx, verticles: List<out Verticle>)
+  fun deployVerticles(vertx: Vertx, verticles: List<Verticle>)
     : List<Future<VerticleDeployment>> = deployVerticles(vertx, verticles, defaultConfig)
 
-  fun deployVerticles(vertx: Vertx, verticles: List<out Verticle>, config: JsonObject)
+  fun deployVerticles(vertx: Vertx, verticles: List<Verticle>, config: JsonObject)
     : List<Future<VerticleDeployment>> {
 
     val deploymentOptions = DeploymentOptions().setWorker(false).setConfig(config)

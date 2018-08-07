@@ -16,17 +16,19 @@ sealed class TestEventSourcedAggregateEvents(): AggregateEvent
 
 data class CreateEventSourcedTestAggregateCommand(
   override val aggregateId: AggregateId, val name: String)
-  : TestEventSourcedAggregateCommands(), AggregateCommand by DefaultAggregateCommand(aggregateId)
+  : TestEventSourcedAggregateCommands(), AggregateCommand, DomainCommand by DefaultDomainCommand()
 
 data class ChangeEventSourcedTestAggregateNameCommand(
-  override val aggregateId: AggregateId, val name: String)
-  : TestEventSourcedAggregateCommands(), AggregateCommand by DefaultAggregateCommand(aggregateId)
+  override val aggregateId: AggregateId, val name: String
+): TestEventSourcedAggregateCommands(), AggregateCommand, DomainCommand by DefaultDomainCommand()
 
 data class EventSourcedTestAggregateCreated(override val aggregateId: AggregateId,
-  override val aggregateVersion: Long, val name: String): TestEventSourcedAggregateEvents()
+  override val aggregateVersion: Long, val name: String, override val correlationId: CorrelationId
+): TestEventSourcedAggregateEvents()
 
 data class EventSourcedTestAggregateNameChanged(override val aggregateId: AggregateId,
-  override val aggregateVersion: Long, val name: String): TestEventSourcedAggregateEvents()
+  override val aggregateVersion: Long, val name: String, override val correlationId: CorrelationId
+): TestEventSourcedAggregateEvents()
 
 data class CreateEventSourcedTestAggregateValidationFailed(val validationIssues: ValidationIssues)
   : FailureReply
@@ -69,8 +71,9 @@ class EventSourcedTestAggregate(
       aggregateVersion.fold(
         {left -> CreateAggregateVersionFailed(left).createLeft()},
         {version ->
-          listOf(EventSourcedTestAggregateCreated(aggregateId, version, validatedCommand.name))
-            .createRight()})
+          listOf(EventSourcedTestAggregateCreated(aggregateId, version, validatedCommand.name,
+            command.correlationId)).createRight()}
+      )
     }
 
     possibleEvents.mapS {

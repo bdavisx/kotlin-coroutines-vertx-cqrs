@@ -26,7 +26,7 @@ interface AuthenticationClientFactory: JDBCClientFactory
 interface EventSourcingClientFactory: JDBCClientFactory
 interface QueryModelClientFactory: JDBCClientFactory
 
-val databaseFactoryModule = Kodein.Module {
+val databaseFactoryModule = Kodein.Module("Database Factory Module") {
   bind<AuthenticationClientFactory>() with singleton { AuthenticationJDBCClientFactory() }
   bind<EventSourcingClientFactory>() with singleton { EventSourcingJDBCClientFactory() }
   bind<QueryModelClientFactory>() with singleton { QueryModelJDBCClientFactory() }

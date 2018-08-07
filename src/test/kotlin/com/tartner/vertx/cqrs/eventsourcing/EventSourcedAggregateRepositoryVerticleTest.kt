@@ -19,8 +19,10 @@ import org.kodein.di.*
 import org.kodein.di.generic.*
 import java.util.*
 
-data class TestCreateEvent(override val aggregateId: UUID, override val aggregateVersion: Long): AggregateEvent
-data class TestCreateSnapshot(override val aggregateId: UUID, override val aggregateVersion: Long): AggregateSnapshot
+data class TestCreateEvent(override val aggregateId: UUID, override val aggregateVersion: Long,
+  override val correlationId: CorrelationId): AggregateEvent
+data class TestCreateSnapshot(override val aggregateId: UUID, override val aggregateVersion: Long)
+  : AggregateSnapshot
 
 class DummyVerticle: CoroutineVerticle()
 

@@ -43,7 +43,7 @@ fun setupVertxKodein(modules: Iterable<Kodein.Module>, vertx: Vertx, testContext
 
 inline fun <reified T> createPassThroughCodec() = PassThroughCodec<T>(T::class.qualifiedName!!)
 
-val testModule = Kodein.Module {
+val testModule = Kodein.Module("VertxTestUtilities test module") {
   bind<DatabaseTestUtilities>() with singleton { DatabaseTestUtilities(i()) }
 
 }

@@ -24,7 +24,7 @@ class CommandSenderTest: AbstractVertxTest() {
   fun testKodein(testContext: TestContext) {
     val kodein = setupVertxKodein(listOf(localTestModule), vertx, testContext)
 
-    val deployer: VerticleDeployer = kodein.i()
+    kodein.i<VerticleDeployer>()
   }
 
   @Test(timeout = 1500)
@@ -53,7 +53,7 @@ class CommandSenderTest: AbstractVertxTest() {
   }
 }
 
-val localTestModule = Kodein.Module {
+val localTestModule = Kodein.Module("CommandSenderTest module") {
   bind<CommandSenderTestVerticle>() with provider { CommandSenderTestVerticle(i(), i()) }
 }
 

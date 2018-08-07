@@ -29,6 +29,7 @@ class VerticleKodeinProvider(public val maximumVerticleInstancesToDeploy: Int) {
 
   // TODO: should this by "synchronized" or is that handled by Kodein?
   fun <T: Verticle> create(verticleClass: KClass<T>, factory: () -> T): T {
+    @Suppress("UNCHECKED_CAST")
     if (containsVerticleClass(verticleClass)) { return verticle(verticleClass) as T }
 
     log.debugIf { "Attempting to create the verticle class: ${verticleClass.qualifiedName}" }

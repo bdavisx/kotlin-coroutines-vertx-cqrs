@@ -14,7 +14,7 @@ interface HasAggregateVersion: HasAggregateId {
 }
 
 annotation class EventHandler
-interface DomainEvent: SerializableVertxObject
+interface DomainEvent: SerializableVertxObject, HasCorrelationId
 
 interface AggregateEvent: DomainEvent, HasAggregateVersion
 
@@ -33,8 +33,6 @@ interface DomainCommand: SerializableVertxObject, HasCorrelationId
 open class DefaultDomainCommand(override val correlationId: CorrelationId = UUID.randomUUID()): DomainCommand
 
 interface AggregateCommand: DomainCommand, HasAggregateId
-class DefaultAggregateCommand(override val aggregateId: AggregateId)
-  : DefaultDomainCommand(), AggregateCommand
 
 interface CommandResponse: SerializableVertxObject
 

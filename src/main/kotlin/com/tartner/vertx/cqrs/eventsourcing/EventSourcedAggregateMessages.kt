@@ -32,20 +32,21 @@ Either<FailureReply, SuccessReply>
  */
 data class ApplySnapshotAndEventsFromLoadAggregateCommand(override val aggregateId: AggregateId,
   val possibleSnapshot: AggregateSnapshot?, val events: List<AggregateEvent>):
-  EventSourcedAggregateMessages(), AggregateCommand by DefaultAggregateCommand(aggregateId)
+  EventSourcedAggregateMessages(), AggregateCommand, DomainCommand by DefaultDomainCommand()
 
 /**
 If an aggregate receives this, it has become invalid and should remove all registrations because
 it's going to get unloaded asap.
  */
 data class InvalidateAggregateCommand(override val aggregateId: AggregateId):
-  EventSourcedAggregateMessages(), AggregateCommand by DefaultAggregateCommand(aggregateId)
+  EventSourcedAggregateMessages(), AggregateCommand, DomainCommand by DefaultDomainCommand()
 
 /**
-After handling the command, the aggregate should fire off this event, although it's not saved to
-the event stream.
+After handling the InvalidateAggregateCommand, the aggregate should fire off this event, although
+it's not saved to the event stream.
  */
-data class AggregateInvalidatedEvent(val aggregateId: AggregateId): EventSourcedAggregateMessages(),
+data class AggregateInvalidatedEvent(val aggregateId: AggregateId,
+  override val correlationId: CorrelationId): EventSourcedAggregateMessages(),
   DomainEvent
 
 /**
@@ -54,12 +55,13 @@ aggregate will only want to receive the event 1 time. This will be raised when t
 received multiple times. @See AttemptToSendCommandToUninitializedAggregateEvent
  */
 data class AttemptToInitializeAlreadyInitializedAggregateEvent(override val aggregateId: UUID,
-  val command: DomainCommand): EventSourcedAggregateMessages(), ErrorEvent, HasAggregateId
+  val command: DomainCommand, override val correlationId: CorrelationId)
+  : EventSourcedAggregateMessages(), ErrorEvent, HasAggregateId
 
 /**
 Occurs when you try to send a command to an aggregate that hasn't received one of it's initializing
 commands.
  */
 data class AttemptToSendCommandToUninitializedAggregateEvent(override val aggregateId: UUID,
-  val command: DomainCommand): EventSourcedAggregateMessages(), ErrorEvent, HasAggregateId
-
+  val command: DomainCommand, override val correlationId: CorrelationId):
+  EventSourcedAggregateMessages(), ErrorEvent, HasAggregateId

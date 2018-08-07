@@ -50,7 +50,7 @@ class VerticleDeployerTest: AbstractVertxTest() {
   }
 }
 
-val testModule = Kodein.Module {
+val testModule = Kodein.Module("VerticleDeployerTest module") {
   bind<SimpleVerticle>() with provider { SimpleVerticle() }
   bind<MultipleDeploymentVerticle>() with factory {id: UUID -> MultipleDeploymentVerticle(i())}
 }

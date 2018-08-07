@@ -18,6 +18,7 @@ class EventSourcedAggregateAutoRegistrarScannerTest {
 
     aggregateClasses.contains(aggregateClass) shouldBe true
 
+    @Suppress("UNCHECKED_CAST")
     aggregateClasses.forEach { javaClass: Class<*> ->
       val creationHandlers = javaClass.kotlin.members.filter { it.findAnnotation<CreationHandler>() != null }
       val creationParameterClasses = creationHandlers.map { it: KCallable<*> ->
