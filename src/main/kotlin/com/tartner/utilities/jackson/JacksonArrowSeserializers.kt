@@ -19,7 +19,6 @@ class JacksonArrowEitherLeftDeserializer:
     val value = mapper.treeToValue<Any>(valueNode, Any::class.java)
     return Either.left(value) as Either.Left<Any, Any>
   }
-
 }
 
 class JacksonArrowEitherRightDeserializer:
