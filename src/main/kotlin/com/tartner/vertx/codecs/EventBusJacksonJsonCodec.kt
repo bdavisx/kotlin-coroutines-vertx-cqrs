@@ -3,7 +3,6 @@ package com.tartner.vertx.codecs
 import com.fasterxml.jackson.annotation.*
 import io.vertx.core.buffer.*
 import io.vertx.core.eventbus.*
-import kotlin.reflect.*
 
 /** Marker interface for objects that the below codec can serialize. */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

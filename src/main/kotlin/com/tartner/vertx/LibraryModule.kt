@@ -6,7 +6,6 @@ import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.cqrs.eventsourcing.*
 import com.tartner.vertx.kodein.*
 import org.kodein.di.*
-import org.kodein.di.bindings.*
 import org.kodein.di.generic.*
 import java.util.*
 

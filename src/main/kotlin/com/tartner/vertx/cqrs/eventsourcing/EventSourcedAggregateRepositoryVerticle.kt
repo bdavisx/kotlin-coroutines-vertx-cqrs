@@ -1,6 +1,5 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import arrow.core.*
 import com.tartner.vertx.*
 import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
@@ -9,8 +8,6 @@ import io.vertx.core.*
 import io.vertx.core.eventbus.*
 import io.vertx.core.logging.*
 import io.vertx.core.shareddata.*
-import io.vertx.ext.sql.*
-import io.vertx.kotlin.core.json.*
 import io.vertx.kotlin.coroutines.*
 import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*

@@ -6,7 +6,7 @@ import com.tartner.vertx.*
 import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
-import io.vertx.core.Handler
+import io.vertx.core.*
 import io.vertx.core.eventbus.*
 import io.vertx.kotlin.coroutines.*
 import kotlinx.coroutines.experimental.*

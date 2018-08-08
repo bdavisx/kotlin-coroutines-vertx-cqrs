@@ -1,6 +1,5 @@
 package com.tartner.vertx.kodein
 
-import com.tartner.utilities.*
 import com.tartner.vertx.*
 import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*

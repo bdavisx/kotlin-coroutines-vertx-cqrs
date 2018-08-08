@@ -8,7 +8,7 @@ import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.database.*
 import com.tartner.vertx.functional.*
-import io.vertx.core.Handler
+import io.vertx.core.*
 import io.vertx.core.eventbus.*
 import io.vertx.core.json.*
 import io.vertx.core.logging.*
