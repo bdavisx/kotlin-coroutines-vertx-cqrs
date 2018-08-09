@@ -2,6 +2,7 @@ package com.tartner.vertx
 
 import com.tartner.vertx.codecs.*
 import com.tartner.vertx.commands.*
+import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
 import com.tartner.vertx.kodein.*
 import io.kotlintest.*
@@ -19,6 +20,7 @@ private val log = LoggerFactory.getLogger(AwaitUtilitiesTest::class.java)
 
 class ReturnRegularReply(): SerializableVertxObject
 class ReturnEitherReply(): SerializableVertxObject
+class ReturnEitherFailureReply(): SerializableVertxObject
 class RegularReply(): SerializableVertxObject
 
 const val testVerticleAddress = "testVerticle"
@@ -40,11 +42,9 @@ class AwaitUtilitiesTestVerticle(
     when (command) {
       is ReturnRegularReply -> commandSender.reply(it, RegularReply())
       is ReturnEitherReply -> commandSender.reply(it, RegularReply().createRight())
+      is ReturnEitherFailureReply -> commandSender.reply(it, ErrorReply("", this::class).createLeft())
     }
   }
-
-  // need to send message and get back an either reply; needs to be a different verticle, otherwise
-  // you get "deadlocked"
 }
 
 class AwaitUtilitiesTestReplyVerticle(
@@ -105,6 +105,32 @@ class AwaitUtilitiesTest(): AbstractVertxTest() {
         awaitMessageEitherResult<RegularReply> {
           commandSender.send(eventBus, testVerticleAddress, ReturnEitherReply(), it) }
 
+      async.complete()
+    }}
+  }
+
+  @Test(timeout = 1000)
+  fun awaitMessageEitherResultFailure(testContext: TestContext) {
+    val kodein = setupVertxKodein(listOf(), vertx, testContext)
+
+    val async = testContext.async()
+
+    vertx.exceptionHandler(testContext.exceptionHandler())
+
+    vertx.runOnContext { launch(vertx.dispatcher()) {
+
+      val commandRegistrar: CommandRegistrar = kodein.i()
+      val commandSender: CommandSender = kodein.i()
+
+      val deployer: VerticleDeployer = kodein.i()
+      CompositeFuture.all(
+        deployer.deployVerticles(vertx,
+          listOf(AwaitUtilitiesTestVerticle(commandRegistrar, commandSender)))).await()
+
+      shouldThrow<EitherFailureException> {
+        awaitMessageEitherResult<RegularReply> {
+          commandSender.send(eventBus, testVerticleAddress, ReturnEitherFailureReply(), it) }
+      }
       async.complete()
     }}
   }
