@@ -1,6 +1,5 @@
 package com.tartner.vertx.commands
 
-import com.tartner.vertx.*
 import com.tartner.vertx.codecs.*
 import io.vertx.core.*
 import io.vertx.core.eventbus.*
