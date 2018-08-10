@@ -15,12 +15,14 @@ sealed class TestEventSourcedAggregateCommands(): AggregateCommand
 sealed class TestEventSourcedAggregateEvents(): AggregateEvent
 
 data class CreateEventSourcedTestAggregateCommand(
-  override val aggregateId: AggregateId, val name: String)
-  : TestEventSourcedAggregateCommands(), AggregateCommand, DomainCommand by DefaultDomainCommand()
+  override val aggregateId: AggregateId, val name: String,
+  override val correlationId: CorrelationId = newId()
+): TestEventSourcedAggregateCommands(), AggregateCommand, DomainCommand
 
 data class ChangeEventSourcedTestAggregateNameCommand(
-  override val aggregateId: AggregateId, val name: String
-): TestEventSourcedAggregateCommands(), AggregateCommand, DomainCommand by DefaultDomainCommand()
+  override val aggregateId: AggregateId, val name: String,
+  override val correlationId: CorrelationId = newId()
+): TestEventSourcedAggregateCommands(), AggregateCommand, DomainCommand
 
 data class EventSourcedTestAggregateCreated(override val aggregateId: AggregateId,
   override val aggregateVersion: Long, val name: String, override val correlationId: CorrelationId

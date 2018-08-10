@@ -20,20 +20,23 @@ import kotlinx.coroutines.experimental.*
 import org.intellij.lang.annotations.*
 
 data class StoreAggregateEventsCommand(
-  val aggregateId: AggregateId, val events: List<AggregateEvent>): DomainCommand by DefaultDomainCommand()
+  val aggregateId: AggregateId, val events: List<AggregateEvent>,
+  override val correlationId: CorrelationId = newId()): DomainCommand
 
 data class UnableToStoreAggregateEventsCommandFailure(override val message: String,
   val aggregateId: AggregateId, val events: List<DomainEvent>,
   val source: Either<*,*>? = null): GeneralCommandFailure
 
-data class StoreAggregateSnapshotCommand(val snapshot: AggregateSnapshot)
-  : DomainCommand by DefaultDomainCommand()
+data class StoreAggregateSnapshotCommand(val snapshot: AggregateSnapshot,
+  override val correlationId: CorrelationId = newId()): DomainCommand
 
 data class LoadAggregateEventsCommand(override val aggregateId: AggregateId,
-  val aggregateVersion: Long): AggregateCommand, DomainCommand by DefaultDomainCommand()
+  val aggregateVersion: Long, override val correlationId: CorrelationId = newId()
+): AggregateCommand, DomainCommand
 
-data class LoadLatestAggregateSnapshotCommand(override val aggregateId: AggregateId)
-  : AggregateCommand, DomainCommand by DefaultDomainCommand()
+data class LoadLatestAggregateSnapshotCommand(override val aggregateId: AggregateId,
+  override val correlationId: CorrelationId = newId()
+): AggregateCommand, DomainCommand
 
 class EventSourcedAggregateDataVerticle(
   private val commandSender: CommandSender,

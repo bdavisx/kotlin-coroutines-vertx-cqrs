@@ -31,15 +31,17 @@ This should only be fired upon a new load of the aggregate. Will return
 Either<FailureReply, SuccessReply>
  */
 data class ApplySnapshotAndEventsFromLoadAggregateCommand(override val aggregateId: AggregateId,
-  val possibleSnapshot: AggregateSnapshot?, val events: List<AggregateEvent>):
-  EventSourcedAggregateMessages(), AggregateCommand, DomainCommand by DefaultDomainCommand()
+  val possibleSnapshot: AggregateSnapshot?, val events: List<AggregateEvent>,
+  override val correlationId: CorrelationId = newId()):
+  EventSourcedAggregateMessages(), AggregateCommand, DomainCommand
 
 /**
 If an aggregate receives this, it has become invalid and should remove all registrations because
 it's going to get unloaded asap.
  */
-data class InvalidateAggregateCommand(override val aggregateId: AggregateId):
-  EventSourcedAggregateMessages(), AggregateCommand, DomainCommand by DefaultDomainCommand()
+data class InvalidateAggregateCommand(override val aggregateId: AggregateId,
+  override val correlationId: CorrelationId = newId()
+): EventSourcedAggregateMessages(), AggregateCommand, DomainCommand
 
 /**
 After handling the InvalidateAggregateCommand, the aggregate should fire off this event, although

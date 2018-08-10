@@ -21,18 +21,21 @@ class UnableToFindAggregateFactoryException(val snapshotOrEvent: HasAggregateVer
 data class RegisterInstantiationClassesForAggregateLocalCommand(
   val factory: AggregateVerticleFactory,
   val eventClasses: List<KClass<out AggregateEvent>>,
-  val snapshotClasses: List<KClass<out AggregateSnapshot>>)
-  : DomainCommand by DefaultDomainCommand()
+  val snapshotClasses: List<KClass<out AggregateSnapshot>>,
+  override val correlationId: CorrelationId = newId()
+): DomainCommand
 
 data class LoadEventSourcedAggregateCommand(
-  val aggregateId: AggregateId, val aggregateAddress: String):
-  DomainCommand by DefaultDomainCommand()
+  val aggregateId: AggregateId, val aggregateAddress: String,
+  override val correlationId: CorrelationId = newId()
+): DomainCommand
 
 data class LoadEventSourcedAggregateCommandFailure(override val cause: Throwable)
   : CommandFailureDueToException
 
-internal object SharedEventSourcedAggregateRepositorySnapshotQuery
-  : DomainCommand by DefaultDomainCommand()
+internal object SharedEventSourcedAggregateRepositorySnapshotQuery: DomainCommand {
+  override val correlationId: CorrelationId = newId()
+}
 
 // TODO: See GeneralCqrsDesign.md for documentation on the class
 

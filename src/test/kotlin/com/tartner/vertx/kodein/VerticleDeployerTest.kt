@@ -56,7 +56,8 @@ val testModule = Kodein.Module("VerticleDeployerTest module") {
 
 class SimpleVerticle(): CoroutineVerticle()
 
-class IncrementCommand(): DomainCommand by DefaultDomainCommand()
+class IncrementCommand(
+  override val correlationId: CorrelationId = newId()): DomainCommand
 
 /*
  * In general, you *don't* want to have any local data that is variable on the multiple deployment

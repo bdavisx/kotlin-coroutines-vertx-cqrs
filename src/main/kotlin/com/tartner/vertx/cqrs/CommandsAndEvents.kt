@@ -26,11 +26,11 @@ interface HasCorrelationId {
   val correlationId: CorrelationId
 }
 
+fun newId() = UUID.randomUUID()
+
 annotation class CommandHandler
 
 interface DomainCommand: SerializableVertxObject, HasCorrelationId
-/** Implements a random UUID for the correlationId. */
-open class DefaultDomainCommand(override val correlationId: CorrelationId = UUID.randomUUID()): DomainCommand
 
 interface AggregateCommand: DomainCommand, HasAggregateId
 

@@ -20,6 +20,8 @@
 
         <kotlinTest.version>3.1.8</kotlinTest.version>
         <junit.version>5.2.0</junit.version>
+
+        <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
     </properties>
 
     <repositories>
@@ -283,7 +285,14 @@
             <version>${kotlinTest.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-logger-api</artifactId>
+            <version>${maven-surefire-plugin.version}</version>
+            <!-- to get around bug https://github.com/junit-team/junit5/issues/1367 -->
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -351,12 +360,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.21.0</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <argLine>-Xmx2048m</argLine>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.2.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
