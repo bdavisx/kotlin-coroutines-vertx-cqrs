@@ -1,15 +1,13 @@
 package com.tartner.vertx.codecs
 
 import io.kotlintest.*
-import io.kotlintest.specs.*
 import io.vertx.core.buffer.*
 import io.vertx.core.buffer.impl.*
-import io.vertx.ext.unit.junit.*
-import org.junit.runner.*
+import org.junit.*
 import java.util.*
 
-data class Test1(val id: UUID, val name: String): SerializableVertxObject
-data class Test2(val id: Long, val address: String, val test1: Test1): SerializableVertxObject
+data class Data1(val id: UUID, val name: String): SerializableVertxObject
+data class Data2(val id: Long, val address: String, val data1: Data1): SerializableVertxObject
 
 class EventBusJacksonJsonCodecTest() {
   @Test
@@ -18,15 +16,15 @@ class EventBusJacksonJsonCodecTest() {
     val codec = EventBusJacksonJsonCodec(mapper)
 
     val buffer: Buffer = BufferFactoryImpl().buffer()!!
-    val test1 = Test1(UUID.randomUUID(), "Test1")
+    val test1 = Data1(UUID.randomUUID(), "Test1")
 
     codec.encodeToWire(buffer, test1)
 
     println(buffer)
     val rawDecode: Any = codec.decodeFromWire(0, buffer)
-    val test1a: Test1 = rawDecode as Test1
-    println(test1a)
-    test1a shouldBe test1
+    val data1A: Data1 = rawDecode as Data1
+    println(data1A)
+    data1A shouldBe test1
   }
 
   @Test
@@ -35,8 +33,8 @@ class EventBusJacksonJsonCodecTest() {
     val codec = EventBusJacksonJsonCodec(mapper)
 
     val buffer: Buffer = BufferFactoryImpl().buffer()!!
-    val test1 = Test1(UUID.randomUUID(), "Test1")
-    val test2 = Test2(123L, "Test2", test1)
+    val test1 = Data1(UUID.randomUUID(), "Test1")
+    val test2 = Data2(123L, "Test2", test1)
 
     codec.encodeToWire(buffer, test2)
 

@@ -340,12 +340,6 @@
                     <compilerPlugins>
                         <plugin>all-open</plugin>
                     </compilerPlugins>
-
-                    <pluginOptions>
-                        <!-- Each annotation is placed on its own line -->
-                        <option>all-open:annotation=com.tartner.vertx.codecs.EventBusObject</option>
-                        <option>all-open:annotation=com.tartner.vertx.OpenForTesting</option>
-                    </pluginOptions>
                 </configuration>
 
                 <dependencies>

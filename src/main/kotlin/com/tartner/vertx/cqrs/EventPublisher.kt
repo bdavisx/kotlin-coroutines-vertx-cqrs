@@ -5,7 +5,6 @@ import com.tartner.vertx.codecs.*
 import io.vertx.core.eventbus.*
 
 /** This publishes events in the "standard" way we are doing it for the library. */
-@OpenForTesting
 class EventPublisher(val eventBus: EventBus) {
   val deliveryOptions: DeliveryOptions = DeliveryOptions()
     .setCodecName(EventBusJacksonJsonCodec.codecName)

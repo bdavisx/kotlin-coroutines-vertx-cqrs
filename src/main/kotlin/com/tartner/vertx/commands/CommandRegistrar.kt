@@ -10,7 +10,6 @@ import kotlin.reflect.*
  Class that handles registering for commands in a standardized way based on the cluster node and
  command. The nodeId should be unique within the cluster.
  */
-@OpenForTesting
 class CommandRegistrar(val nodeId: String) {
   /** Registers the command with address == commandClass.qualifiedName */
   fun <T: SerializableVertxObject> registerLocalCommandHandler(
@@ -40,7 +39,6 @@ class CommandRegistrar(val nodeId: String) {
   }
 }
 
-@OpenForTesting
 class EventRegistrar {
   fun <T: SerializableVertxObject>  registerEventHandler(eventBus: EventBus, eventClass: KClass<T>,
     handler: Handler<Message<T>>): MessageConsumer<T>? =

@@ -14,7 +14,6 @@ import io.vertx.core.eventbus.*
  although we'll probably need to pass in another dependency or change the signature for that to
  work.
  */
-@OpenForTesting
 class CommandSender {
   val deliveryOptions: DeliveryOptions = DeliveryOptions()
     .setCodecName(EventBusJacksonJsonCodec.codecName)
