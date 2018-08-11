@@ -38,8 +38,3 @@ class CommandRegistrar(val nodeId: String) {
   }
 }
 
-class EventRegistrar {
-  fun <T: SerializableVertxObject>  registerEventHandler(eventBus: EventBus, eventClass: KClass<T>,
-    handler: Handler<Message<T>>): MessageConsumer<T>? =
-    eventBus.consumer<T>(eventClass.qualifiedName, { message -> handler.handle(message) })
-}
