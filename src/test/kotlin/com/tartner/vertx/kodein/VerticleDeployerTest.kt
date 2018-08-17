@@ -75,8 +75,7 @@ class MultipleDeploymentVerticle(
 
   override suspend fun start() {
     super.start()
-    commandRegistrar.registerLocalCommandHandler(eventBus, IncrementCommand::class,
-      Handler {increment()})
+    commandRegistrar.registerLocalCommandHandler(eventBus, IncrementCommand::class, {increment()})
   }
 
   fun increment() {

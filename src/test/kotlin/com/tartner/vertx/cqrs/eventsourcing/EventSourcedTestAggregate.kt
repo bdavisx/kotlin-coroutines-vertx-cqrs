@@ -6,10 +6,12 @@ import com.tartner.vertx.*
 import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.functional.*
-import io.vertx.core.*
 import io.vertx.core.eventbus.*
 import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
+import java.util.*
+
+data class EventSourcedTestAggregateSnapshot(override val aggregateId: UUID,
+  override val aggregateVersion: Long, val name: String): AggregateSnapshot
 
 sealed class TestEventSourcedAggregateCommands(): AggregateCommand
 sealed class TestEventSourcedAggregateEvents(): AggregateEvent
@@ -52,9 +54,8 @@ class EventSourcedTestAggregate(
 
   override suspend fun start() {
     super.start()
-    commandRegistrar.registerLocalCommandHandler<CreateEventSourcedTestAggregateCommand>(eventBus,
-      CreateEventSourcedTestAggregateCommand::class,
-      Handler {it -> launch(vertx.dispatcher()) {createAggregate(it)}})
+    commandRegistrar.registerLocalCommandHandler(eventBus,
+      CreateEventSourcedTestAggregateCommand::class, {createAggregate(it)})
   }
 
   private fun applyEvents(events: List<TestEventSourcedAggregateEvents>) {
@@ -64,6 +65,13 @@ class EventSourcedTestAggregate(
         is EventSourcedTestAggregateNameChanged -> { name = event.name }
       }
     }
+  }
+
+  @SnapshotHandler
+  fun handleSnapshot(snapshot: EventSourcedTestAggregateSnapshot) {
+    // TODO: is there any way to automatically handle this as part of the "registration" in EventSourcedAggregateAutoRegistrarScanner?
+    eventSourcingDelegate.setVersionFromSnapshot(snapshot)
+    name = snapshot.name
   }
 
   suspend fun createAggregate(commandMessage: Message<CreateEventSourcedTestAggregateCommand>) {

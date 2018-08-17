@@ -64,7 +64,7 @@ class CommandSenderTestVerticle(
   private val commandSender: CommandSender
 ): CoroutineVerticle() {
   override suspend fun start() {
-    commandRegistrar.registerLocalCommandHandler(eventBus, DummyCommand::class, Handler {
+    commandRegistrar.registerLocalCommandHandler(eventBus, DummyCommand::class, {
       log.debug("Got message in TestVerticle")
       commandSender.reply(it, SuccessReply)
     })

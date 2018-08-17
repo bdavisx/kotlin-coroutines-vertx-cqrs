@@ -1,16 +1,27 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
+import com.tartner.vertx.*
 import com.tartner.vertx.cqrs.*
+import com.tartner.vertx.kodein.*
 import io.kotlintest.*
+import io.vertx.ext.unit.TestContext
+import io.vertx.ext.unit.junit.*
 import org.junit.*
+import org.junit.runner.*
+import org.kodein.di.*
 import org.reflections.*
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
-class EventSourcedAggregateAutoRegistrarScannerTest {
+@RunWith(VertxUnitRunner::class)
+class EventSourcedAggregateAutoRegistrarScannerTest: AbstractVertxTest() {
   @Test
-  fun something() {
+  fun something(testContext: TestContext) {
     val aggregateClass = EventSourcedTestAggregate::class.java
+    val kodein = setupVertxKodein(listOf(), vertx, testContext)
+
+    val scanner = EventSourcedAggregateAutoRegistrarScanner(kodein.direct, kodein.i())
+
     val reflections = Reflections(aggregateClass)
 
     val aggregateClasses: MutableSet<Class<*>> =

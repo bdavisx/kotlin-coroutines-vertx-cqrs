@@ -40,10 +40,14 @@ class EventSourcedAggregateRepositoryVerticleTest: AbstractVertxTest() {
         val kodein = setupVertxKodein(listOf(), vertx, context)
         val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)
 
+        val correlationId = newId()
+
         val deployer: VerticleDeployer = kodein.i()
+        val dKodein = kodein.direct
         CompositeFuture.all(
           deployer.deployVerticles(vertx,
-            listOf(kodein.direct.instance<EventSourcedAggregateRepositoryVerticle>()), configuration))
+            listOf(dKodein.i<EventSourcedAggregateRepositoryVerticle>(),
+              dKodein.i<SharedEventSourcedAggregateRepositoryDataVerticle>()), configuration))
           .await()
 
         val aggregateIds = mutableListOf<AggregateId>()
@@ -53,18 +57,17 @@ class EventSourcedAggregateRepositoryVerticleTest: AbstractVertxTest() {
         }
 
         val command = RegisterInstantiationClassesForAggregateLocalCommand(factory,
-          listOf(TestCreateEvent::class), listOf(TestCreateSnapshot::class))
+          listOf(TestCreateEvent::class), listOf(TestCreateSnapshot::class), correlationId)
 
         val commandSender: CommandSender = kodein.i()
-        awaitMessageEitherResult<Any> { commandSender.send(eventBus, command, it) }
+        commandSender.send(eventBus, command)
 
-        val snapshot = awaitMessageEitherResult<SharedEventSourcedAggregateRepositoryDataSnapshot> {
-          commandSender.send(eventBus, SharedEventSourcedAggregateRepositorySnapshotQuery, it)
+        val factoryReply = awaitMessageResult<FindAggregateVerticleFactoryReply> {
+          commandSender.send(eventBus,
+            FindAggregateVerticleFactoryQuery(TestCreateEvent::class, correlationId), it)
         }
 
-        snapshot.instantiationClassToFactory.size shouldBe 2
-        snapshot.instantiationClassToFactory.containsKey(TestCreateEvent::class) shouldBe true
-        snapshot.instantiationClassToFactory[TestCreateSnapshot::class] shouldNotBe null
+        factoryReply.factory shouldBe factory
 
         async.complete()
       } catch(ex: Throwable) {

@@ -33,11 +33,8 @@ class EventSourcedAggregateCommandHandlerVerticle(
     aggregateIdToAddress =
       sharedData.getLocalMap<AggregateId, String>(aggregateIdToAggregateAddressMapName)
 
-    commandRegistrar.registerCommandHandlerWithLocalAndClusterAddresses(
-      eventBus, AggregateCommandAddress,
-      Handler<Message<AggregateCommand>> {
-        launch(vertx.dispatcher()) { routeCommand(it) }
-      })
+    commandRegistrar.registerCommandHandlerWithLocalAndClusterAddresses<AggregateCommand>(
+      eventBus, AggregateCommandAddress, { routeCommand(it) })
   }
 
   private suspend fun routeCommand(commandMessage: Message<AggregateCommand>) {

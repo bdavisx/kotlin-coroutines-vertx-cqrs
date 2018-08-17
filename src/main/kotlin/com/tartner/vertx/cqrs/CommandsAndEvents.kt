@@ -34,10 +34,10 @@ interface DomainCommand: SerializableVertxObject, HasCorrelationId
 
 interface AggregateCommand: DomainCommand, HasAggregateId
 
-interface CommandResponse: SerializableVertxObject
+interface CommandReply: SerializableVertxObject
 
-interface Query: SerializableVertxObject
-interface QueryResponse: SerializableVertxObject
+interface Query: SerializableVertxObject, HasCorrelationId
+interface QueryReply: SerializableVertxObject
 
 interface AggregateSnapshot: SerializableVertxObject, HasAggregateVersion
 

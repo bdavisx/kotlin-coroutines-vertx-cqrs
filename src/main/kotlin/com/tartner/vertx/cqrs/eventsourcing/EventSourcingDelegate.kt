@@ -62,8 +62,7 @@ class EventSourcingDelegate(
   fun registerAggregate(directMessageHandler: suspend (Message<DomainCommand>) -> Unit) {
     // handles anything sent directly to our Id as a String address
     addMessageConsumer(commandRegistrar.registerCommandHandlerWithLocalAddress<DomainCommand>(
-      eventBus, determineAggregateAddress(aggregateId),
-      Handler { launch(vertx.dispatcher()) {directMessageHandler(it)} }))
+      eventBus, determineAggregateAddress(aggregateId), {directMessageHandler(it)}))
   }
 
   fun firstVersion(command: DomainCommand): Either<ErrorEvent, Long> =
@@ -85,6 +84,10 @@ class EventSourcingDelegate(
       AttemptToSendCommandToUninitializedAggregateEvent(aggregateId, command, command.correlationId)
         .createLeft()
     }
+
+  fun setVersionFromSnapshot(snapshot: AggregateSnapshot) {
+    this.version = snapshot.aggregateVersion
+  }
 
   /** Note this does not persist the event, only publishes and replies to the message with it. */
   fun fail(commandMessage: Message<*>, failEvent: ErrorEvent): ErrorEvent {

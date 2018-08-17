@@ -10,8 +10,9 @@ interface GeneralCommandFailure: FailureReply {
 }
 
 /** Represents the failure of a command due to a exception. */
-interface CommandFailureDueToException: FailureReply {
+interface CommandFailureDueToException: FailureReply, HasCorrelationId {
   val cause: Throwable
 }
 
-data class CommandFailedDueToException(override val cause: Throwable): CommandFailureDueToException
+data class CommandFailedDueToException(override val cause: Throwable,
+  override val correlationId: CorrelationId): CommandFailureDueToException

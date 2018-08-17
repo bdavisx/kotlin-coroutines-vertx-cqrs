@@ -33,8 +33,8 @@ class AwaitUtilitiesTestVerticle(
 
   override suspend fun start() {
     super.start()
-    commandRegistrar.registerCommandHandlerWithLocalAddress(eventBus, testVerticleAddress,
-      Handler<Message<SerializableVertxObject>> { message(it) } )
+    commandRegistrar.registerCommandHandlerWithLocalAddress<SerializableVertxObject>(
+      eventBus, testVerticleAddress, { message(it) })
   }
 
   fun message(it: Message<SerializableVertxObject>) {

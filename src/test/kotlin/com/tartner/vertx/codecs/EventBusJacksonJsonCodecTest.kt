@@ -3,7 +3,9 @@ package com.tartner.vertx.codecs
 import io.kotlintest.*
 import io.vertx.core.buffer.*
 import io.vertx.core.buffer.impl.*
+import io.vertx.ext.unit.junit.*
 import org.junit.*
+import org.junit.runner.*
 import java.util.*
 
 data class Data1(val id: UUID, val name: String): SerializableVertxObject

@@ -8,7 +8,6 @@ import com.tartner.vertx.commands.*
 import com.tartner.vertx.cqrs.*
 import com.tartner.vertx.database.*
 import com.tartner.vertx.functional.*
-import io.vertx.core.*
 import io.vertx.core.eventbus.*
 import io.vertx.core.json.*
 import io.vertx.core.logging.*
@@ -16,7 +15,6 @@ import io.vertx.ext.jdbc.*
 import io.vertx.ext.sql.*
 import io.vertx.kotlin.core.json.*
 import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
 import org.intellij.lang.annotations.*
 
 data class StoreAggregateEventsCommand(
@@ -91,16 +89,16 @@ class EventSourcedAggregateDataVerticle(
     insertSnapshotSql = databaseClientFactory.replaceSchema(insertSnapshotSqlRaw)
 
     commandRegistrar.registerLocalCommandHandler(eventBus, LoadAggregateEventsCommand::class,
-      Handler { launch(vertx.dispatcher()) { loadEvents(it) } })
+      { loadEvents(it) })
 
     commandRegistrar.registerLocalCommandHandler(eventBus, LoadLatestAggregateSnapshotCommand::class,
-      Handler { launch(vertx.dispatcher()) { loadSnapshot(it) } })
+      { loadSnapshot(it) })
 
     commandRegistrar.registerLocalCommandHandler(eventBus, StoreAggregateEventsCommand::class,
-      Handler { launch(vertx.dispatcher()) { storeEvents(it) } })
+      { storeEvents(it) })
 
     commandRegistrar.registerLocalCommandHandler(eventBus, StoreAggregateSnapshotCommand::class,
-      Handler { launch(vertx.dispatcher()) { storeSnapshot(it) } })
+      { storeSnapshot(it) })
   }
 
   private suspend fun loadEvents(commandMessage: Message<LoadAggregateEventsCommand>) {
@@ -118,7 +116,8 @@ class EventSourcedAggregateDataVerticle(
       val events = results.map { databaseMapper.readValue<AggregateEvent>(it.getString(0)) }
       commandSender.reply(commandMessage, Either.Right(events))
     } catch (ex: Throwable) {
-      commandSender.reply(commandMessage, CommandFailedDueToException(ex).createLeft())
+      commandSender.reply(commandMessage,
+        CommandFailedDueToException(ex, command.correlationId).createLeft())
     }
   }
 
@@ -138,7 +137,8 @@ class EventSourcedAggregateDataVerticle(
         databaseMapper.readValue<AggregateSnapshot>(it.getString(0)) }.firstOrNull()
       commandSender.reply(commandMessage, Either.Right(possibleSnapshot))
     } catch (ex: Throwable) {
-      commandSender.reply(commandMessage, CommandFailedDueToException(ex).createLeft())
+      commandSender.reply(commandMessage,
+        CommandFailedDueToException(ex, command.correlationId).createLeft())
     }
   }
 
@@ -171,7 +171,8 @@ class EventSourcedAggregateDataVerticle(
         commandSender.reply(commandMessage, successReplyRight)
         }
       } catch (ex: Throwable) {
-        commandSender.reply(commandMessage, CommandFailedDueToException(ex).createLeft())
+        commandSender.reply(commandMessage,
+          CommandFailedDueToException(ex, command.correlationId).createLeft())
       }
     }
 
@@ -197,7 +198,8 @@ class EventSourcedAggregateDataVerticle(
         commandSender.reply(commandMessage, successReplyRight)
       }
     } catch (ex: Throwable) {
-      commandSender.reply(commandMessage, CommandFailedDueToException(ex).createLeft())
+      commandSender.reply(commandMessage,
+        CommandFailedDueToException(ex, command.correlationId).createLeft())
     }
   }
 }

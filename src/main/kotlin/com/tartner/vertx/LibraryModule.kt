@@ -25,13 +25,13 @@ val libraryModule = Kodein.Module("kotlin-coroutines-vertx-cqrs module") {
   bind<ExternalObjectMapper>() with singleton { ExternalObjectMapper.default }
 
   bind<CommandSender>() with singleton { CommandSender() }
-  bind<CommandRegistrar>() with singleton { CommandRegistrar(defaultNodeId) }
+  bind<CommandRegistrar>() with singleton { CommandRegistrar(defaultNodeId, i()) }
 
   bind<EventPublisher>() with singleton { EventPublisher(i()) }
   bind<EventRegistrar>() with singleton { EventRegistrar() }
 
-  bind<SharedEventSourcedAggregateRepositoryData>() with singleton { SharedEventSourcedAggregateRepositoryData() }
+  bind<SharedEventSourcedAggregateRepositoryDataVerticle>() with provider { SharedEventSourcedAggregateRepositoryDataVerticle(i(), i()) }
 
   bind<EventSourcedAggregateDataVerticle>() with provider { EventSourcedAggregateDataVerticle(i(), i(), i(), i()) }
-  bind<EventSourcedAggregateRepositoryVerticle>() with provider { EventSourcedAggregateRepositoryVerticle(i(), i(), i(), i()) }
+  bind<EventSourcedAggregateRepositoryVerticle>() with provider { EventSourcedAggregateRepositoryVerticle(i(), i()) }
 }
