@@ -26,7 +26,7 @@ class VerticleDeployerTest: AbstractVertxTest() {
 
     vertx.runOnContext { launch(vertx.dispatcher()) {
       try {
-        val kodein = setupVertxKodein(listOf(testModule), vertx, context)
+        val kodein = setupVertxKodein(vertx, context, listOf(testModule))
 
         val deployer: VerticleDeployer = kodein.i()
 

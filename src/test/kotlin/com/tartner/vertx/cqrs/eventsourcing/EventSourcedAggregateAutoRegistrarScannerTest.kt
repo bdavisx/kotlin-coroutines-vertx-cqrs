@@ -18,7 +18,7 @@ class EventSourcedAggregateAutoRegistrarScannerTest: AbstractVertxTest() {
   @Test
   fun something(testContext: TestContext) {
     val aggregateClass = EventSourcedTestAggregate::class.java
-    val kodein = setupVertxKodein(listOf(), vertx, testContext)
+    val kodein = setupVertxKodein(vertx, testContext, listOf())
 
     val scanner = EventSourcedAggregateAutoRegistrarScanner(kodein.direct, kodein.i())
 

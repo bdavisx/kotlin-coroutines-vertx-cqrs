@@ -57,7 +57,7 @@ class AwaitUtilitiesTestReplyVerticle(
 class AwaitUtilitiesTest(): AbstractVertxTest() {
   @Test(timeout = 1000)
   fun awaitMessageResultTest(testContext: TestContext) {
-    val kodein = setupVertxKodein(listOf(), vertx, testContext)
+    val kodein = setupVertxKodein(vertx, testContext, listOf())
 
     val async = testContext.async()
 
@@ -85,7 +85,7 @@ class AwaitUtilitiesTest(): AbstractVertxTest() {
 
   @Test(timeout = 1000)
   fun awaitMessageEitherResult(testContext: TestContext) {
-    val kodein = setupVertxKodein(listOf(), vertx, testContext)
+    val kodein = setupVertxKodein(vertx, testContext, listOf())
 
     val async = testContext.async()
 
@@ -111,7 +111,7 @@ class AwaitUtilitiesTest(): AbstractVertxTest() {
 
   @Test(timeout = 1000)
   fun awaitMessageEitherResultFailure(testContext: TestContext) {
-    val kodein = setupVertxKodein(listOf(), vertx, testContext)
+    val kodein = setupVertxKodein(vertx, testContext, listOf())
 
     val async = testContext.async()
 

@@ -22,14 +22,14 @@ private val log = LoggerFactory.getLogger(CommandSenderTest::class.java)
 class CommandSenderTest: AbstractVertxTest() {
   @Test(timeout = 1500)
   fun testKodein(testContext: TestContext) {
-    val kodein = setupVertxKodein(listOf(localTestModule), vertx, testContext)
+    val kodein = setupVertxKodein(vertx, testContext, listOf(localTestModule))
 
     kodein.i<VerticleDeployer>()
   }
 
   @Test(timeout = 1500)
   fun testItShouldSendACommandCorrectly(testContext: TestContext) {
-    val kodein = setupVertxKodein(listOf(localTestModule), vertx, testContext)
+    val kodein = setupVertxKodein(vertx, testContext, listOf(localTestModule))
 
     val async = testContext.async()
 

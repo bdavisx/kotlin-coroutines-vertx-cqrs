@@ -19,7 +19,7 @@ val FastActorResponseTime: Duration = 10.milliSeconds
 val AbstractVertxTest.eventBus: EventBus
   get() = vertx.eventBus()
 
-fun setupVertxKodein(modules: Iterable<Kodein.Module>, vertx: Vertx, testContext: TestContext)
+fun setupVertxKodein(vertx: Vertx, testContext: TestContext, modules: Iterable<Kodein.Module>)
   : Kodein {
 
   vertx.exceptionHandler(testContext.exceptionHandler())

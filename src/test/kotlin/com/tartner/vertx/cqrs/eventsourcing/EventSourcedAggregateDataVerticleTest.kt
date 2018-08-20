@@ -30,7 +30,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
 
     vertx.runOnContext { launch(vertx.dispatcher()) {
       try {
-        val injector = setupVertxKodein(listOf(), vertx, context).direct
+        val injector = setupVertxKodein(vertx, context, listOf()).direct
         val configuration: JsonObject = buildConfiguration()
 
         val deployer: VerticleDeployer = injector.instance()
@@ -86,7 +86,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
 
     vertx.runOnContext { launch(vertx.dispatcher()) {
       try {
-        val injector = setupVertxKodein(listOf(), vertx, context).direct
+        val injector = setupVertxKodein(vertx, context, listOf()).direct
         val configuration: JsonObject = buildConfiguration()
 
         val deployer: VerticleDeployer = injector.instance()

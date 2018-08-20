@@ -44,7 +44,7 @@ class EventPublisherTest(): AbstractVertxTest() {
 
     vertx.runOnContext { launch(vertx.dispatcher()) {
       try {
-        val injector = setupVertxKodein(listOf(testModule), vertx, context).direct
+        val injector = setupVertxKodein(vertx, context, listOf(testModule)).direct
 
         val deployer: VerticleDeployer = injector.instance()
         val verticle = injector.i<EventPublisherTestVerticle>()

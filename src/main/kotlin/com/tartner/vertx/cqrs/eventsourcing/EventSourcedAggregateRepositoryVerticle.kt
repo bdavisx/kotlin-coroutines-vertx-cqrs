@@ -74,7 +74,7 @@ class EventSourcedAggregateRepositoryVerticle(
     commandMessage: Message<LoadEventSourcedAggregateCommand>) {
     val command = commandMessage.body()
     commandSender.send(eventBus, MarkAggregateRecentlyUsedCommand(aggregateId, command.correlationId))
-    commandSender.reply(commandMessage, createRight())
+    commandSender.reply(commandMessage, successReplyRight)
   }
 
   private suspend fun loadAggregateFromStorage(
@@ -93,7 +93,7 @@ class EventSourcedAggregateRepositoryVerticle(
     val snapshotOrEvent: HasAggregateVersion = possibleSnapshot ?: events.first()
 
     val verticleFactory: AggregateVerticleFactory? =
-      awaitMessageResult<FindAggregateVerticleFactoryReply> { commandSender.send(eventBus,
+      awaitMessageEitherResult<FindAggregateVerticleFactoryReply> { commandSender.send(eventBus,
         FindAggregateVerticleFactoryQuery(snapshotOrEvent::class, command.correlationId), it) }
         .factory
 

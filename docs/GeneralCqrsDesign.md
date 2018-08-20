@@ -3,6 +3,22 @@ layout: post
 title: CQRS Design
 ---
 
+# Pausing the work
+
+Right now I'm going to stop working on the vert.x version of this library. Vert.x is great, but it seems like a ton of work compared to more traditional programming, and I currently have an exception happening with very little to go on in terms of what caused it. There's none of my code in it except for a utility. I *could* track the problem down, but my main concert is that in production, it would be much, much harder. I switched to Kotlin to cut down on verbosity (not the only reason, but one), and this library just makes it worse.
+
+I'm going to take a look @ the Kotlin coroutines version again, but perhaps Spring reactive is another option if coroutines aren't fully baked yet (although I think they're leaving experimental status in 1.3?)
+
+Much of the documentation still applies to any implementation.
+
+# Distribution and Clustering
+
+We need a consistent routine scheme for aggregates, we need a way to look the routing up by aggregateId only - although the routing will obviously need more than just the id. So we'll have to cache that lookup data on each server for some amount of time.
+
+Is there a good mru cache available on vertx? I saw that Clement Escoiffer (sp?) had a JCache implementation that was async. My question is: is JCache slow enough that you need an async interface? I would think you could just use the implementation directly, but his uses `runBlocking()` on some(all?) of the JCache calls..
+
+We also need routing on services. Transparent to the consumer, but when the command comes into the `CommandSender` the routine should be handled automatically based on the command. We need a way to specify how the routing should be handled in the verticles themselves; either through annotations or some kind of configuration. It seems that you have to design your code around how the verticle(s) will be distributed. If you think the service is local (which basically means it's local to each cluster node), then you write code one way - but if it's an AggregateRoot that only has one deployment you might do something differently (?). 
+
 # Commands or Direct Calls (with parameters)
 
 I've went back and forth on this one. We need commands so we have a correlation id running thru the call stack. Commands also force a decoupling, but make tracing the calls much, much harder. An interface that takes commands would be a middle ground - it has both correlation and decoupling.
