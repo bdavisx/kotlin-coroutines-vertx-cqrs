@@ -3,14 +3,6 @@ layout: post
 title: CQRS Design
 ---
 
-# Pausing the work
-
-Right now I'm going to stop working on the vert.x version of this library. Vert.x is great, but it seems like a ton of work compared to more traditional programming, and I currently have an exception happening with very little to go on in terms of what caused it. There's none of my code in it except for a utility. I *could* track the problem down, but my main concert is that in production, it would be much, much harder. I switched to Kotlin to cut down on verbosity (not the only reason, but one), and this library just makes it worse.
-
-I'm going to take a look @ the Kotlin coroutines version again, but perhaps Spring reactive is another option if coroutines aren't fully baked yet (although I think they're leaving experimental status in 1.3?)
-
-Much of the documentation still applies to any implementation.
-
 # Distribution and Clustering
 
 We need a consistent routine scheme for aggregates, we need a way to look the routing up by aggregateId only - although the routing will obviously need more than just the id. So we'll have to cache that lookup data on each server for some amount of time.
