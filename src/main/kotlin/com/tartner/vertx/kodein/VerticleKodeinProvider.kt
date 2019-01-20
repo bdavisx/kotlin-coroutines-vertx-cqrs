@@ -14,7 +14,7 @@ inline fun DKodeinAware.v() = dkodein.Instance(TT(VerticleKodeinProvider::class)
  * We need to create a certain # of verticles that are deployed (or will be deployed),
  * plus we need 1 of the verticles to get injected into the DI system
  */
-class VerticleKodeinProvider(public val maximumVerticleInstancesToDeploy: Int) {
+class VerticleKodeinProvider(val maximumVerticleInstancesToDeploy: Int) {
   private val log = LoggerFactory.getLogger(VerticleKodeinProvider::class.java)
   private val verticleClassToVerticles = ConcurrentHashMap<KClass<out Verticle>, List<Verticle>>()
   private val verticlesInOrder = ConcurrentLinkedQueue<Verticle>()
@@ -27,7 +27,7 @@ class VerticleKodeinProvider(public val maximumVerticleInstancesToDeploy: Int) {
 
   fun verticlesToDeploy() = verticlesInOrder
 
-  // TODO: should this by "synchronized" or is that handled by Kodein?
+  // TODO: should this be "synchronized" or is that handled by Kodein?
   fun <T: Verticle> create(verticleClass: KClass<T>, factory: () -> T): T {
     if (containsVerticleClass(verticleClass)) { return verticle(verticleClass) as T }
 

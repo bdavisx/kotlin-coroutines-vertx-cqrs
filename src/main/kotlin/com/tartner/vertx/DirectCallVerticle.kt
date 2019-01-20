@@ -14,6 +14,7 @@ class FireAndForgetCodeMessage(block: suspend (DirectCallVerticle) -> Unit): Cod
  * Use the same id for multiple verticles if you want the calls to be distributed.
  */
 open class DirectCallVerticle(val localAddress: String): CoroutineVerticle() {
+  /** The noArg constructor uses a random value for the id. */
   constructor(): this(UUID.randomUUID().toString())
 
   companion object {

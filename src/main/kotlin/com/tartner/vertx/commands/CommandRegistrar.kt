@@ -20,7 +20,7 @@ class CommandRegistrar(val nodeId: String) {
   /** Registers a handler for T that is only local to this node. */
   fun <T: SerializableVertxObject> registerCommandHandlerWithLocalAddress(
     eventBus: EventBus, address: String, handler: Handler<Message<T>>) =
-    eventBus.localConsumer<T>(address, { message -> handler.handle(message) })
+    eventBus.localConsumer<T>(address) { message -> handler.handle(message) }
 
   /**
    Register a cluster wide address with the address prefixed with a standardized cluster prefix
@@ -29,7 +29,7 @@ class CommandRegistrar(val nodeId: String) {
   fun <T: SerializableVertxObject> registerCommandHandlerWithClusterAddress(
     eventBus: EventBus, address: String, handler: Handler<Message<T>>) {
     val localizedAddress = "$nodeId::$address"
-    eventBus.consumer<T>(localizedAddress, { message -> handler.handle(message) })
+    eventBus.consumer<T>(localizedAddress) { message -> handler.handle(message) }
   }
 
   /** Registers a handler with both a local and standardized cluster prefix address. */
@@ -44,5 +44,5 @@ class CommandRegistrar(val nodeId: String) {
 class EventRegistrar {
   fun <T: SerializableVertxObject>  registerEventHandler(eventBus: EventBus, eventClass: KClass<T>,
     handler: Handler<Message<T>>): MessageConsumer<T>? =
-    eventBus.consumer<T>(eventClass.qualifiedName, { message -> handler.handle(message) })
+    eventBus.consumer<T>(eventClass.qualifiedName) { message -> handler.handle(message) }
 }

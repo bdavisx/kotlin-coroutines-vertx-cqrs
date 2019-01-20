@@ -14,11 +14,6 @@ annotation class SpecificNumberOfVerticleInstancesToDeploy(val count: Int)
 
 data class VerticleDeployment(val instance: Verticle, val deploymentId: String)
 
-/**
- * By default, will deploy 1 Verticle instance, but if the verticle has the
- * PercentOfMaximumVerticleInstancesToDeploy annotation, it will calculate the number of instances
- * using that value.
- */
 class VerticleDeployer(private val kodein: Kodein) {
   private val log: Logger = LoggerFactory.getLogger(VerticleDeployer::class.java)
 
