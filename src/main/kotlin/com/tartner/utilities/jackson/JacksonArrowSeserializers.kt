@@ -13,27 +13,27 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 interface ArrowMixIn
 
 class JacksonArrowEitherLeftDeserializer:
-  StdDeserializer<Either.Left<Any, Any>>(Either.Left::class.java) {
+  StdDeserializer<Either.Left<Any>>(Either.Left::class.java) {
 
-  override fun deserialize(parser: JsonParser, context: DeserializationContext): Either.Left<Any, Any> {
+  override fun deserialize(parser: JsonParser, context: DeserializationContext): Either.Left<Any> {
     val node: JsonNode = parser.codec.readTree(parser)
     val valueNode = node.get("a")
     val mapper: ObjectMapper = parser.codec as ObjectMapper
     val value = mapper.treeToValue<Any>(valueNode, Any::class.java)
-    return Either.left(value) as Either.Left<Any, Any>
+    return Either.left(value) as Either.Left<Any>
   }
 
 }
 
 class JacksonArrowEitherRightDeserializer:
-  StdDeserializer<Either.Right<Any,Any>>(Either::class.java) {
+  StdDeserializer<Either.Right<Any>>(Either::class.java) {
 
-  override fun deserialize(parser: JsonParser, context: DeserializationContext): Either.Right<Any, Any> {
+  override fun deserialize(parser: JsonParser, context: DeserializationContext): Either.Right<Any> {
     val node: JsonNode = parser.codec.readTree(parser)
     val valueNode = node.get("b")
     val mapper: ObjectMapper = parser.codec as ObjectMapper
     val value = mapper.treeToValue<Any>(valueNode, Any::class.java)
-    return Either.right(value) as Either.Right<Any, Any>
+    return Either.right(value) as Either.Right<Any>
   }
 }
 

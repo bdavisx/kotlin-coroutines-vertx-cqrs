@@ -38,8 +38,8 @@ fun setupVertxKodein(modules: Iterable<Kodein.Module>, vertx: Vertx, testContext
   vertx.eventBus().registerCodec(EventBusJacksonJsonCodec(injector.i()))
 
   vertx.eventBus().registerCodec(createPassThroughCodec<CodeMessage<*>>())
-  vertx.eventBus().registerDefaultCodec(Either.Left::class.java, createPassThroughCodec<Either.Left<*,*>>())
-  vertx.eventBus().registerDefaultCodec(Either.Right::class.java, createPassThroughCodec<Either.Right<*,*>>())
+  vertx.eventBus().registerDefaultCodec(Either.Left::class.java, createPassThroughCodec<Either.Left<*>>())
+  vertx.eventBus().registerDefaultCodec(Either.Right::class.java, createPassThroughCodec<Either.Right<*>>())
   vertx.eventBus().registerDefaultCodec(Some::class.java, createPassThroughCodec<Some<*>>())
   vertx.eventBus().registerDefaultCodec(None::class.java, createPassThroughCodec<None>())
 
@@ -48,7 +48,6 @@ fun setupVertxKodein(modules: Iterable<Kodein.Module>, vertx: Vertx, testContext
 
 inline fun <reified T> createPassThroughCodec() = PassThroughCodec<T>(T::class.qualifiedName!!)
 
-val testModule = Kodein.Module {
+val testModule = Kodein.Module("testModule-VertxTestUtilities.kt") {
   bind<DatabaseTestUtilities>() with singleton { DatabaseTestUtilities(i()) }
-
 }

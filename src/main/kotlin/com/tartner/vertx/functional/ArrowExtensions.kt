@@ -21,6 +21,6 @@ suspend inline fun <L, R, C> Either<L, R>.flatMapS(crossinline f: suspend (R) ->
 
 suspend inline fun <L, R, C> Either<L, R>.foldS(
   crossinline fl: suspend (L) -> C, crossinline fr: suspend (R) -> C): C = when (this) {
-    is Either.Right<L,R> -> fr(b)
-    is Either.Left<L,R> -> fl(a)
+    is Either.Right<R> -> fr(b)
+    is Either.Left<L> -> fl(a)
 }
