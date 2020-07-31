@@ -1,15 +1,19 @@
 package com.tartner.vertx
 
-import arrow.core.*
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.database.*
-import com.tartner.vertx.kodein.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import io.vertx.ext.unit.*
-import org.kodein.di.*
-import org.kodein.di.generic.*
-import java.time.*
+import arrow.core.Either
+import arrow.core.None
+import arrow.core.Some
+import com.tartner.vertx.codecs.EventBusJacksonJsonCodec
+import com.tartner.vertx.database.databaseFactoryModule
+import com.tartner.vertx.kodein.i
+import com.tartner.vertx.kodein.vertxKodeinModule
+import io.vertx.core.Vertx
+import io.vertx.core.eventbus.EventBus
+import io.vertx.ext.unit.TestContext
+import org.kodein.di.Kodein
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.singleton
+import java.time.Duration
 
 val Int.seconds get() = Duration.ofSeconds(this.toLong())
 val Int.milliSeconds get() = Duration.ofMillis(this.toLong())

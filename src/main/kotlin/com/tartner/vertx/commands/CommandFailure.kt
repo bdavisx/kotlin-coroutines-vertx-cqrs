@@ -1,8 +1,8 @@
 package com.tartner.vertx.commands
 
-import com.tartner.vertx.cqrs.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
+import com.tartner.vertx.cqrs.FailureReply
+import io.vertx.core.AsyncResult
+import io.vertx.core.eventbus.Message
 
 /** Represents the failure of a command due to some general issue, not an exception. */
 interface GeneralCommandFailure: FailureReply {

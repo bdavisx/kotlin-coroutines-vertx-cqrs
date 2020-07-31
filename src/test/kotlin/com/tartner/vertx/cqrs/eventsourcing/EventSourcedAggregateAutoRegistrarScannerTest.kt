@@ -1,11 +1,14 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.vertx.cqrs.*
-import io.kotlintest.*
-import org.junit.*
-import org.reflections.*
-import kotlin.reflect.*
-import kotlin.reflect.full.*
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import io.kotest.matchers.shouldBe
+import org.junit.Test
+import org.reflections.Reflections
+import kotlin.reflect.KCallable
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.findAnnotation
 
 class EventSourcedAggregateAutoRegistrarScannerTest {
   @Test

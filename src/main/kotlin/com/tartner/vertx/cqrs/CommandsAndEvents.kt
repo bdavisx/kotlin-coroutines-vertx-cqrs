@@ -1,9 +1,9 @@
 package com.tartner.vertx.cqrs
 
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.functional.*
-import java.util.*
-import kotlin.reflect.*
+import com.tartner.vertx.codecs.SerializableVertxObject
+import com.tartner.vertx.functional.createRight
+import java.util.UUID
+import kotlin.reflect.KClass
 
 interface HasAggregateId {
   val aggregateId: UUID

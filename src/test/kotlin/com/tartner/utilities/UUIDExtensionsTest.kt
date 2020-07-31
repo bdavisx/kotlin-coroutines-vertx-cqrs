@@ -1,8 +1,8 @@
 package com.tartner.utilities
 
-import io.kotlintest.*
-import org.junit.*
-import java.util.*
+import io.kotest.matchers.shouldBe
+import org.junit.Test
+import java.util.UUID
 
 class UUIDExtensionsTest {
   @Test

@@ -1,14 +1,19 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.vertx.*
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import io.vertx.core.shareddata.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
+import com.tartner.vertx.codecs.SerializableVertxObject
+import com.tartner.vertx.commands.CommandRegistrar
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.AggregateCommand
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.eventBus
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
+import io.vertx.core.eventbus.Message
+import io.vertx.core.shareddata.LocalMap
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.awaitResult
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.launch
 
 /**
  This class "directs" the ES Aggregate commands to the correct aggregate. That's its only

@@ -1,15 +1,21 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import io.vertx.kotlin.coroutines.*
-import org.kodein.di.*
-import org.kodein.di.generic.*
-import org.reflections.*
-import kotlin.reflect.*
-import kotlin.reflect.full.*
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import io.vertx.core.Vertx
+import io.vertx.core.eventbus.EventBus
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import org.kodein.di.Kodein
+import org.kodein.di.TT
+import org.kodein.di.direct
+import org.kodein.di.generic.factory
+import org.reflections.Reflections
+import kotlin.reflect.KCallable
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.findAnnotation
 
 /*
 A higher level class EventSourcedAggregateStartup than the EventSourcingDelegate should search thru
@@ -51,8 +57,7 @@ class EventSourcedAggregateAutoRegistrarScanner(
         parameter.type.classifier as KClass<AggregateSnapshot>
       }
 
-      val factory = kodein.direct.factory<AggregateId, CoroutineVerticle>(
-        TT(javaClass))
+      val factory = kodein.direct.factory<AggregateId, CoroutineVerticle>(TT(javaClass))
       val command = RegisterInstantiationClassesForAggregateLocalCommand(
         factory, creationParameterClasses, snapshotParameterClasses)
       commandSender.send(eventBus, command)

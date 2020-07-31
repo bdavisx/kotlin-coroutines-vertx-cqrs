@@ -1,15 +1,26 @@
 package com.tartner.vertx
 
-import io.kotlintest.*
-import io.vertx.core.*
-import io.vertx.core.logging.*
+import io.kotest.matchers.shouldBe
+import io.vertx.core.CompositeFuture
+import io.vertx.core.Context
+import io.vertx.core.DeploymentOptions
+import io.vertx.core.Future
+import io.vertx.core.Vertx
+import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.unit.TestContext
-import io.vertx.ext.unit.junit.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
-import org.junit.*
-import org.junit.runner.*
-import java.util.*
+import io.vertx.ext.unit.junit.VertxUnitRunner
+import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.awaitEvent
+import io.vertx.kotlin.coroutines.awaitResult
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.util.Random
+import java.util.UUID
 
 /** Dummy data class w/ a var for the verticle to manipulate. Wouldn't normally do this, but it's a test. */
 data class ManipulateMe(var value: Int = 0)
@@ -75,7 +86,7 @@ class DirectCallVerticleTest {
     val async = context.async()
 
     vertx.runOnContext {
-      launch(vertx.dispatcher()) {
+      GlobalScope.launch(vertx.dispatcher()) {
         try {
           vertx.eventBus().registerCodec(PassThroughCodec<CodeMessage<*>>(CodeMessage::class.qualifiedName!!))
 
@@ -109,7 +120,7 @@ class DirectCallVerticleTest {
     val async = context.async()
 
     vertx.runOnContext {
-      launch(vertx.dispatcher()) {
+      GlobalScope.launch(vertx.dispatcher()) {
         try {
           vertx.eventBus().registerCodec(PassThroughCodec<CodeMessage<*>>(CodeMessage::class.qualifiedName!!))
 

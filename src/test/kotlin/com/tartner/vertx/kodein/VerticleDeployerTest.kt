@@ -1,19 +1,26 @@
 package com.tartner.vertx.kodein
 
-import com.tartner.utilities.*
-import com.tartner.vertx.*
-import io.kotlintest.*
-import io.vertx.core.*
-import io.vertx.core.logging.*
+import com.tartner.utilities.toStringFast
+import com.tartner.vertx.AbstractVertxTest
+import com.tartner.vertx.DirectCallVerticle
+import com.tartner.vertx.setupVertxKodein
+import io.kotest.matchers.shouldBe
+import io.vertx.core.Future
+import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.unit.TestContext
-import io.vertx.ext.unit.junit.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
-import org.junit.*
-import org.junit.runner.*
-import org.kodein.di.*
-import org.kodein.di.generic.*
-import java.util.*
+import io.vertx.ext.unit.junit.VertxUnitRunner
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.kodein.di.Kodein
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.factory
+import org.kodein.di.generic.provider
+import java.util.UUID
 
 @RunWith(VertxUnitRunner::class)
 class VerticleDeployerTest: AbstractVertxTest() {
@@ -23,7 +30,7 @@ class VerticleDeployerTest: AbstractVertxTest() {
     val async = context.async()
     vertx.exceptionHandler(context.exceptionHandler())
 
-    vertx.runOnContext { launch(vertx.dispatcher()) {
+    vertx.runOnContext { GlobalScope.launch(vertx.dispatcher()) {
       try {
         val kodein = setupVertxKodein(listOf(testModule), vertx, context)
 

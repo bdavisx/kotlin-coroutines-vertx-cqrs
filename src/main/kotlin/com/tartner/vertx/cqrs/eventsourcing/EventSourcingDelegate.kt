@@ -1,14 +1,28 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import arrow.core.*
-import com.tartner.utilities.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.functional.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
+import arrow.core.Either
+import com.tartner.utilities.toStringFast
+import com.tartner.vertx.commands.CommandRegistrar
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import com.tartner.vertx.cqrs.DomainCommand
+import com.tartner.vertx.cqrs.ErrorEvent
+import com.tartner.vertx.cqrs.EventPublisher
+import com.tartner.vertx.cqrs.FailureReply
+import com.tartner.vertx.cqrs.SuccessReply
+import com.tartner.vertx.cqrs.successReplyRight
+import com.tartner.vertx.functional.createLeft
+import com.tartner.vertx.functional.foldS
+import io.vertx.core.Handler
+import io.vertx.core.Vertx
+import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.Message
+import io.vertx.core.eventbus.MessageConsumer
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Many functions will return an Either<FailureReply, *>, this is the standard to return if version
@@ -50,20 +64,16 @@ class EventSourcingDelegate(
   private fun determineAggregateAddress(aggregateId: AggregateId) = aggregateId.toStringFast()
 
   /**
-  Handles registering the aggregate in a standard fashion.
-
-  The directMessageHandler will be called whenever a message comes to the aggregate's registered
-  address.
-
-  // TODO: make this an interface so networking can be handled with a different class?
-
-  have a way to create networked addresses and register globally
+   * Handles registering the aggregate in a standard fashion.
+   *
+   * The directMessageHandler will be called whenever a message comes to the aggregate's registered
+   * address.
    */
-  fun registerAggregate(directMessageHandler: suspend (Message<DomainCommand>) -> Unit) {
+  fun registerAggregate(scope: CoroutineScope, directMessageHandler: suspend (Message<DomainCommand>) -> Unit) {
     // handles anything sent directly to our Id as a String address
     addMessageConsumer(commandRegistrar.registerCommandHandlerWithLocalAddress<DomainCommand>(
       eventBus, determineAggregateAddress(aggregateId),
-      Handler { launch(vertx.dispatcher()) {directMessageHandler(it)} }))
+      Handler { scope.launch(vertx.dispatcher()) {directMessageHandler(it)} }))
   }
 
   fun firstVersion(command: DomainCommand): Either<ErrorEvent, Long> =

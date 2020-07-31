@@ -1,10 +1,12 @@
 package com.tartner.vertx
 
-import com.tartner.vertx.database.*
-import io.vertx.core.*
-import io.vertx.core.json.*
-import io.vertx.ext.sql.*
-import io.vertx.kotlin.coroutines.*
+import com.tartner.vertx.database.QueryModelClientFactory
+import io.vertx.core.Vertx
+import io.vertx.core.json.JsonArray
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.sql.SQLConnection
+import io.vertx.ext.sql.UpdateResult
+import io.vertx.kotlin.coroutines.awaitResult
 
 class DatabaseTestUtilities(private val queryFactory: QueryModelClientFactory) {
   suspend fun runUpdateSql(sql: String, parameters: JsonArray, vertx: Vertx,

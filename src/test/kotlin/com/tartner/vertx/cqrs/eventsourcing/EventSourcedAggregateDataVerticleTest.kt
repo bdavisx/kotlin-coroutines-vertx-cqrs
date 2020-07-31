@@ -1,25 +1,32 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import arrow.core.*
-import com.tartner.utilities.*
-import com.tartner.vertx.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.kodein.*
-import io.kotlintest.*
-import io.vertx.core.*
-import io.vertx.core.json.*
+import arrow.core.Either
+import com.tartner.utilities.TestConfigurationDefaults
+import com.tartner.vertx.AbstractVertxTest
+import com.tartner.vertx.DatabaseTestUtilities
+import com.tartner.vertx.commands.CommandRegistrar
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import com.tartner.vertx.kodein.VerticleDeployer
+import com.tartner.vertx.kodein.i
+import com.tartner.vertx.setupVertxKodein
+import io.kotest.matchers.shouldBe
+import io.vertx.core.DeploymentOptions
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.unit.TestContext
-import io.vertx.ext.unit.junit.*
-import io.vertx.kotlin.core.json.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
-import org.junit.*
-import org.junit.runner.*
-import org.kodein.di.*
-import org.kodein.di.generic.*
-import java.util.*
-import kotlin.system.*
+import io.vertx.ext.unit.junit.VertxUnitRunner
+import io.vertx.kotlin.core.json.JsonArray
+import io.vertx.kotlin.coroutines.awaitResult
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.kodein.di.direct
+import org.kodein.di.generic.provider
+import java.util.UUID
+import kotlin.system.measureTimeMillis
 
 @RunWith(VertxUnitRunner::class)
 class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
@@ -27,7 +34,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
   fun snapshotInsertAndQuery(context: io.vertx.ext.unit.TestContext) {
     val async = context.async()
 
-    vertx.runOnContext { launch(vertx.dispatcher()) {
+    vertx.runOnContext { GlobalScope.launch(vertx.dispatcher()) {
       try {
         val injector = setupVertxKodein(listOf(), vertx, context)
         val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)
@@ -82,7 +89,7 @@ class EventSourcedAggregateDataVerticleTest: AbstractVertxTest() {
   fun eventsInsertAndQuery(context: TestContext) {
     val async = context.async()
 
-    vertx.runOnContext { launch(vertx.dispatcher()) {
+    vertx.runOnContext { GlobalScope.launch(vertx.dispatcher()) {
       try {
         val injector = setupVertxKodein(listOf(), vertx, context)
         val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)

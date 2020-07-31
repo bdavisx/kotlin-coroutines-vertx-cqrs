@@ -15,7 +15,8 @@
  */
 package com.tartner.utilities
 
-import java.util.*
+import java.util.Arrays
+import java.util.UUID
 
 /**
  * Copied from

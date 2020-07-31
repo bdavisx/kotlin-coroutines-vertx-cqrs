@@ -1,4 +1,4 @@
-Copyright (c) 2018  Bill W. Davis (bdavisx)
+Copyright (c) 2020  Bill W. Davis (bdavisx)
 
                                  Apache License
                            Version 2.0, January 2004

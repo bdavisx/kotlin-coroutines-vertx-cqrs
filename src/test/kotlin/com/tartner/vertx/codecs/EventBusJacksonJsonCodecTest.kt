@@ -1,10 +1,10 @@
 package com.tartner.vertx.codecs
 
-import io.kotlintest.*
-import io.kotlintest.specs.*
-import io.vertx.core.buffer.*
-import io.vertx.core.buffer.impl.*
-import java.util.*
+import io.kotest.core.spec.style.FeatureSpec
+import io.kotest.matchers.shouldBe
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.buffer.impl.BufferFactoryImpl
+import java.util.UUID
 
 data class Test1(val id: UUID, val name: String): SerializableVertxObject
 data class Test2(val id: Long, val address: String, val test1: Test1): SerializableVertxObject

@@ -1,9 +1,11 @@
 package com.tartner.vertx
 
-import io.vertx.core.eventbus.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
-import java.util.*
+import io.vertx.core.eventbus.DeliveryOptions
+import io.vertx.core.eventbus.Message
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 sealed class CodeMessage<T: Any>(val block: suspend (DirectCallVerticle) -> T)
 class ReturnValueCodeMessage<T: Any>(block: suspend (DirectCallVerticle) -> T): CodeMessage<T>(block)

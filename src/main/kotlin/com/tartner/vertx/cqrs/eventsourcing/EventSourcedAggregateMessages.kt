@@ -1,8 +1,16 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.cqrs.*
-import java.util.*
+import com.tartner.vertx.codecs.SerializableVertxObject
+import com.tartner.vertx.cqrs.AggregateCommand
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import com.tartner.vertx.cqrs.DefaultAggregateCommand
+import com.tartner.vertx.cqrs.DomainCommand
+import com.tartner.vertx.cqrs.DomainEvent
+import com.tartner.vertx.cqrs.ErrorEvent
+import com.tartner.vertx.cqrs.HasAggregateId
+import java.util.UUID
 
 /** All aggregate commands should go to this address. */
 // TODO: this s/b part of the address strategy (or a "cousin")

@@ -1,10 +1,12 @@
 package com.tartner.vertx.commands
 
-import com.tartner.vertx.*
-import com.tartner.vertx.codecs.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import kotlin.reflect.*
+import com.tartner.vertx.OpenForTesting
+import com.tartner.vertx.codecs.SerializableVertxObject
+import io.vertx.core.Handler
+import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.Message
+import io.vertx.core.eventbus.MessageConsumer
+import kotlin.reflect.KClass
 
 /**
  Class that handles registering for commands in a standardized way based on the cluster node and

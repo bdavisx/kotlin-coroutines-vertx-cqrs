@@ -1,13 +1,13 @@
 package com.tartner.vertx
 
-import io.kotlintest.*
-import org.junit.*
+import io.kotest.matchers.shouldBe
+import org.junit.Test
 
 class DequeForTestingTest {
   @Test
   fun emptyTest() {
     val deque = DequeForTesting<Any>()
-    deque.isEmpty shouldBe true
+    deque.isEmpty shouldBe  true
   }
 
   @Test

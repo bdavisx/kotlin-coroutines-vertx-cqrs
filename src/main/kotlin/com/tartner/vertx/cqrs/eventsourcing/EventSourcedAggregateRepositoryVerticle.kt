@@ -1,16 +1,31 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import arrow.core.*
-import com.tartner.vertx.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.functional.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import io.vertx.core.shareddata.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
-import kotlin.reflect.*
+import arrow.core.Either
+import com.tartner.vertx.awaitMessageEitherResult
+import com.tartner.vertx.commands.CommandFailedDueToException
+import com.tartner.vertx.commands.CommandFailureDueToException
+import com.tartner.vertx.commands.CommandRegistrar
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import com.tartner.vertx.cqrs.DefaultDomainCommand
+import com.tartner.vertx.cqrs.DomainCommand
+import com.tartner.vertx.cqrs.HasAggregateVersion
+import com.tartner.vertx.cqrs.successReplyRight
+import com.tartner.vertx.eventBus
+import com.tartner.vertx.functional.createLeft
+import com.tartner.vertx.functional.createRight
+import com.tartner.vertx.functional.flatMapS
+import com.tartner.vertx.functional.mapS
+import io.vertx.core.Handler
+import io.vertx.core.eventbus.Message
+import io.vertx.core.shareddata.Lock
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.awaitResult
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
 
 typealias AggregateVerticleFactory = (AggregateId) -> CoroutineVerticle
 

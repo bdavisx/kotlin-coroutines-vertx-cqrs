@@ -1,9 +1,12 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.vertx.cqrs.*
-import java.time.*
-import java.util.concurrent.*
-import kotlin.reflect.*
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.HasAggregateId
+import com.tartner.vertx.cqrs.HasAggregateVersion
+import com.tartner.vertx.cqrs.QueryResponse
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
 
 internal data class SharedEventSourcedAggregateRepositoryDataSnapshot(
   val aggregateIdToLastUsedInstant: Map<AggregateId, Instant>,

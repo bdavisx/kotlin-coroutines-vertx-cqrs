@@ -1,6 +1,8 @@
 package com.tartner.vertx.functional
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.Left
+import arrow.core.Right
 
 fun <L: Any> L.createLeft() = Either.Left(this)
 fun <R: Any> R.createRight() = Either.Right(this)

@@ -1,7 +1,7 @@
 package com.tartner.vertx
 
-import io.vertx.core.buffer.*
-import io.vertx.core.eventbus.*
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.eventbus.MessageCodec
 
 class PassThroughCodec<T>(val name: String): MessageCodec<T, T> {
   companion object {

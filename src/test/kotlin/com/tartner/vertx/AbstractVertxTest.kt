@@ -1,11 +1,13 @@
 package com.tartner.vertx
 
-import io.vertx.core.*
-import io.vertx.core.logging.*
-import io.vertx.ext.unit.*
-import io.vertx.ext.unit.junit.*
-import org.junit.*
-import org.junit.runner.*
+import io.vertx.core.AsyncResult
+import io.vertx.core.Vertx
+import io.vertx.core.logging.LoggerFactory
+import io.vertx.ext.unit.TestContext
+import io.vertx.ext.unit.junit.VertxUnitRunner
+import org.junit.After
+import org.junit.Before
+import org.junit.runner.RunWith
 
 fun <T> TestContext.assertResultTrue(result: AsyncResult<T>) {
   if (result.failed()) {

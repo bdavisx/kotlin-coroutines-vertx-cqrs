@@ -1,10 +1,19 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import arrow.core.*
-import com.tartner.kamedon.validation.*
-import com.tartner.vertx.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.functional.*
+import arrow.core.Either
+import arrow.core.flatMap
+import com.tartner.kamedon.validation.Validation
+import com.tartner.kamedon.validation.ValidationIssues
+import com.tartner.vertx.DirectCallVerticle
+import com.tartner.vertx.cqrs.AggregateCommand
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.DefaultAggregateCommand
+import com.tartner.vertx.cqrs.FailureReply
+import com.tartner.vertx.eventBus
+import com.tartner.vertx.functional.createLeft
+import com.tartner.vertx.functional.createRight
+import com.tartner.vertx.functional.mapS
 
 sealed class TestEventSourcedAggregateCommands(): AggregateCommand
 sealed class TestEventSourcedAggregateEvents(): AggregateEvent

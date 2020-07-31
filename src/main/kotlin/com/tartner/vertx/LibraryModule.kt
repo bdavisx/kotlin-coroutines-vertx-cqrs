@@ -1,14 +1,23 @@
 package com.tartner.vertx
 
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.cqrs.eventsourcing.*
-import com.tartner.vertx.kodein.*
-import org.kodein.di.*
-import org.kodein.di.bindings.*
-import org.kodein.di.generic.*
-import java.util.*
+import com.tartner.vertx.codecs.ExternalObjectMapper
+import com.tartner.vertx.codecs.TypedObjectMapper
+import com.tartner.vertx.commands.CommandRegistrar
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.commands.EventRegistrar
+import com.tartner.vertx.cqrs.EventPublisher
+import com.tartner.vertx.cqrs.eventsourcing.EventSourcedAggregateDataVerticle
+import com.tartner.vertx.cqrs.eventsourcing.EventSourcedAggregateRepositoryVerticle
+import com.tartner.vertx.cqrs.eventsourcing.SharedEventSourcedAggregateRepositoryData
+import com.tartner.vertx.kodein.VerticleDeployer
+import com.tartner.vertx.kodein.VerticleKodeinProvider
+import com.tartner.vertx.kodein.i
+import org.kodein.di.Kodein
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.provider
+import org.kodein.di.generic.singleton
+import org.kodein.di.generic.with
+import java.util.UUID
 
 private const val defaultNodeId = "local"
 

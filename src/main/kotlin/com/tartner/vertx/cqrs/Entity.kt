@@ -1,6 +1,6 @@
 package com.tartner.vertx.cqrs
 
-import java.util.*
+import java.util.UUID
 
 typealias AggregateId = UUID
 typealias EntityId = UUID

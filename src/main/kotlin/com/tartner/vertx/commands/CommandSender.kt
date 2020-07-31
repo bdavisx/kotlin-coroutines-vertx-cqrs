@@ -1,9 +1,13 @@
 package com.tartner.vertx.commands
 
-import com.tartner.vertx.*
-import com.tartner.vertx.codecs.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
+import com.tartner.vertx.OpenForTesting
+import com.tartner.vertx.codecs.EventBusJacksonJsonCodec
+import com.tartner.vertx.codecs.SerializableVertxObject
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
+import io.vertx.core.eventbus.DeliveryOptions
+import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.Message
 
 /**
  This evolved from the CommandBus, but once I added a DI library that would work with Verticle's, I

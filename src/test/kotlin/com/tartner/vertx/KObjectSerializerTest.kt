@@ -1,11 +1,15 @@
 package com.tartner.vertx
 
-import arrow.core.*
-import com.fasterxml.jackson.module.kotlin.*
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.cqrs.*
-import io.kotlintest.specs.*
-import java.time.*
+import arrow.core.Either
+import arrow.core.None
+import arrow.core.Some
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.tartner.vertx.codecs.SerializableVertxObject
+import com.tartner.vertx.codecs.TypedObjectMapper
+import com.tartner.vertx.cqrs.DefaultDomainCommand
+import com.tartner.vertx.cqrs.DomainCommand
+import io.kotest.core.spec.style.FeatureSpec
+import java.time.OffsetDateTime
 
 data class TestCreateTrialUserCommand(val email: String, val networkAddress: String,
   val date: OffsetDateTime): DomainCommand by DefaultDomainCommand()

@@ -1,12 +1,14 @@
 package com.tartner.vertx.kodein
 
-import com.tartner.vertx.*
-import io.vertx.core.*
-import io.vertx.core.logging.*
-import org.kodein.di.*
-import java.util.concurrent.*
-import kotlin.reflect.*
-import kotlin.reflect.full.*
+import com.tartner.vertx.debugIf
+import io.vertx.core.Verticle
+import io.vertx.core.logging.LoggerFactory
+import org.kodein.di.DKodeinAware
+import org.kodein.di.TT
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 inline fun DKodeinAware.v() = dkodein.Instance(TT(VerticleKodeinProvider::class))
 

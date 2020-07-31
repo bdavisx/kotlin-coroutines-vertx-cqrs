@@ -1,11 +1,11 @@
 package com.tartner.vertx.database
 
-import io.vertx.core.*
-import io.vertx.core.json.*
-import io.vertx.ext.jdbc.*
-import org.kodein.di.*
-import org.kodein.di.generic.*
-import java.lang.*
+import io.vertx.core.Vertx
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.jdbc.JDBCClient
+import org.kodein.di.Kodein
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.singleton
 
 /*
     By inheriting JDBCClient, we can create a Type specific class that can act as a JDBCClient. This

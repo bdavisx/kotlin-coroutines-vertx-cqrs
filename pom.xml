@@ -9,39 +9,19 @@
     <version>0.1.0-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.2.51</kotlin.version>
+        <kotlin.version>1.3.70</kotlin.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.coroutines.version>0.22.5</kotlin.coroutines.version>
+        <kotlin.coroutines.version>1.3.7</kotlin.coroutines.version>
 
-        <vertx.version>3.5.3</vertx.version>
-        <jackson.version>2.9.6</jackson.version>
-        <kodein.version>5.2.0</kodein.version>
+        <vertx.version>3.9.1</vertx.version>
+        <jackson.version>2.11.0</jackson.version>
 
-        <kotlinTest.version>3.1.8</kotlinTest.version>
+        <koin.version>2.1.6</koin.version>
+
+        <kotest.version>4.1.2</kotest.version>
         <junit.version>5.2.0</junit.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>central</id>
-            <name>bintray</name>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>central</id>
-            <name>bintray-plugins</name>
-            <url>http://jcenter.bintray.com</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -173,15 +153,12 @@
             <version>0.9.11</version>
         </dependency>
 
+        <!-- Don't upgrade to newer versions if you don't have to, the dipshits really changed
+            things around in 7+ -->
         <dependency>
             <groupId>org.kodein.di</groupId>
             <artifactId>kodein-di-generic-jvm</artifactId>
-            <version>${kodein.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kodein.di</groupId>
-            <artifactId>kodein-di-conf-jvm</artifactId>
-            <version>${kodein.version}</version>
+            <version>6.5.5</version>
         </dependency>
 
         <dependency>
@@ -242,21 +219,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.kotlintest</groupId>
-            <artifactId>kotlintest-core</artifactId>
-            <version>${kotlinTest.version}</version>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-core-jvm</artifactId>
+            <version>${kotest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.kotlintest</groupId>
-            <artifactId>kotlintest-assertions</artifactId>
-            <version>${kotlinTest.version}</version>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-assertions-core-jvm</artifactId>
+            <version>${kotest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.kotlintest</groupId>
-            <artifactId>kotlintest-runner-junit5</artifactId>
-            <version>${kotlinTest.version}</version>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-runner-junit5-jvm</artifactId>
+            <version>${kotest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -277,14 +254,15 @@
             <version>1.8</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.kotlintest</groupId>
-            <artifactId>kotlintest-runner-junit5</artifactId>
-            <version>${kotlinTest.version}</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>

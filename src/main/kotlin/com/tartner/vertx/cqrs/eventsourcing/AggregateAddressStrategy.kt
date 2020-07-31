@@ -1,7 +1,7 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.utilities.*
-import com.tartner.vertx.cqrs.*
+import com.tartner.utilities.toStringFast
+import com.tartner.vertx.cqrs.AggregateId
 
 /**
  This interface is designed to be used by the EventSourcedAggregateCommandHandlerVerticle. It's not

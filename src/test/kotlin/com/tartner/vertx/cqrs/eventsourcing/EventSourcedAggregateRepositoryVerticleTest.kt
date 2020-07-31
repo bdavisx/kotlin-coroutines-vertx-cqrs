@@ -1,23 +1,33 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.utilities.*
-import com.tartner.vertx.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.kodein.*
-import io.kotlintest.*
-import io.vertx.core.*
-import io.vertx.core.json.*
-import io.vertx.core.logging.*
+import com.tartner.utilities.TestConfigurationDefaults
+import com.tartner.vertx.AbstractVertxTest
+import com.tartner.vertx.awaitMessageEitherResult
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import com.tartner.vertx.eventBus
+import com.tartner.vertx.kodein.VerticleDeployer
+import com.tartner.vertx.kodein.i
+import com.tartner.vertx.setupVertxKodein
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.vertx.core.CompositeFuture
+import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.unit.TestContext
-import io.vertx.ext.unit.junit.*
-import io.vertx.kotlin.coroutines.*
-import kotlinx.coroutines.experimental.*
-import org.junit.*
-import org.junit.runner.*
-import org.kodein.di.*
-import org.kodein.di.generic.*
-import java.util.*
+import io.vertx.ext.unit.junit.VertxUnitRunner
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.kodein.di.direct
+import org.kodein.di.generic.instance
+import java.util.UUID
 
 data class TestCreateEvent(override val aggregateId: UUID, override val aggregateVersion: Long): AggregateEvent
 data class TestCreateSnapshot(override val aggregateId: UUID, override val aggregateVersion: Long): AggregateSnapshot
@@ -33,7 +43,7 @@ class EventSourcedAggregateRepositoryVerticleTest: AbstractVertxTest() {
     val async = context.async()
     vertx.exceptionHandler(context.exceptionHandler())
 
-    vertx.runOnContext { launch(vertx.dispatcher()) {
+    vertx.runOnContext { GlobalScope.launch(vertx.dispatcher()) {
       try {
         val kodein = setupVertxKodein(listOf(), vertx, context)
         val configuration: JsonObject = TestConfigurationDefaults.buildConfiguration(vertx)

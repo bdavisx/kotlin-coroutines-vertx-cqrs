@@ -1,9 +1,13 @@
 package com.tartner.vertx.kodein
 
-import io.vertx.core.*
-import io.vertx.core.json.*
-import io.vertx.core.logging.*
-import org.kodein.di.*
+import io.vertx.core.DeploymentOptions
+import io.vertx.core.Future
+import io.vertx.core.Verticle
+import io.vertx.core.Vertx
+import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.Logger
+import io.vertx.core.logging.LoggerFactory
+import org.kodein.di.Kodein
 
 /** Used to calculate the # of verticles to deploy; default is 1 if this annotation isn't used. */
 @Target(AnnotationTarget.CLASS)

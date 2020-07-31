@@ -1,19 +1,30 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import arrow.core.*
-import com.fasterxml.jackson.module.kotlin.*
-import com.tartner.vertx.*
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import com.tartner.vertx.database.*
-import com.tartner.vertx.functional.*
-import io.vertx.core.json.*
-import io.vertx.core.logging.*
-import io.vertx.ext.jdbc.*
-import io.vertx.ext.sql.*
-import io.vertx.kotlin.core.json.*
-import org.intellij.lang.annotations.*
+import arrow.core.Either
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.tartner.vertx.DirectCallVerticle
+import com.tartner.vertx.codecs.TypedObjectMapper
+import com.tartner.vertx.commands.CommandFailedDueToException
+import com.tartner.vertx.commands.GeneralCommandFailure
+import com.tartner.vertx.cqrs.AggregateEvent
+import com.tartner.vertx.cqrs.AggregateId
+import com.tartner.vertx.cqrs.AggregateSnapshot
+import com.tartner.vertx.cqrs.DomainEvent
+import com.tartner.vertx.cqrs.ErrorReply
+import com.tartner.vertx.cqrs.successReplyRight
+import com.tartner.vertx.database.EventSourcingClientFactory
+import com.tartner.vertx.debugIf
+import com.tartner.vertx.functional.createLeft
+import com.tartner.vertx.getConnectionA
+import com.tartner.vertx.queryWithParamsA
+import com.tartner.vertx.updateWithParamsA
+import io.vertx.core.json.JsonArray
+import io.vertx.core.logging.LoggerFactory
+import io.vertx.ext.jdbc.JDBCClient
+import io.vertx.ext.sql.UpdateResult
+import io.vertx.kotlin.core.json.array
+import io.vertx.kotlin.core.json.json
+import org.intellij.lang.annotations.Language
 
 data class UnableToStoreAggregateEventsCommandFailure(override val message: String,
   val aggregateId: AggregateId, val events: List<DomainEvent>,

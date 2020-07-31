@@ -1,15 +1,20 @@
 package com.tartner.vertx
 
-import arrow.core.*
-import com.tartner.vertx.codecs.*
-import com.tartner.vertx.commands.*
-import com.tartner.vertx.cqrs.*
-import io.vertx.core.*
-import io.vertx.core.eventbus.*
-import io.vertx.core.json.*
-import io.vertx.ext.jdbc.*
-import io.vertx.ext.sql.*
-import io.vertx.kotlin.coroutines.*
+import arrow.core.Either
+import com.tartner.vertx.codecs.SerializableVertxObject
+import com.tartner.vertx.commands.CommandSender
+import com.tartner.vertx.cqrs.FailureReply
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
+import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.Message
+import io.vertx.core.json.JsonArray
+import io.vertx.ext.jdbc.JDBCClient
+import io.vertx.ext.sql.ResultSet
+import io.vertx.ext.sql.SQLConnection
+import io.vertx.ext.sql.UpdateResult
+import io.vertx.kotlin.coroutines.awaitEvent
+import io.vertx.kotlin.coroutines.awaitResult
 
 suspend fun <T> awaitMessageResult(block: (h: Handler<AsyncResult<Message<T>>>) -> Unit) : T {
   val asyncResult = awaitEvent(block)
