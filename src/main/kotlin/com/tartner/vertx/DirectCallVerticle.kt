@@ -25,7 +25,6 @@ open class DirectCallVerticle(val localAddress: String): CoroutineVerticle() {
 
     fun isDirectCallVerticle(jvmType: Class<*>) =
       DirectCallVerticle::class.java.isAssignableFrom(jvmType)
-
   }
 
   override suspend fun start() {

@@ -5,15 +5,12 @@ import com.tartner.vertx.commands.CommandRegistrar
 import com.tartner.vertx.commands.CommandSender
 import com.tartner.vertx.cqrs.AggregateCommand
 import com.tartner.vertx.cqrs.AggregateId
-import com.tartner.vertx.eventBus
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
 import io.vertx.core.eventbus.Message
 import io.vertx.core.shareddata.LocalMap
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.awaitResult
-import io.vertx.kotlin.coroutines.dispatcher
-import kotlinx.coroutines.launch
 
 /**
  This class "directs" the ES Aggregate commands to the correct aggregate. That's its only
@@ -38,11 +35,7 @@ class EventSourcedAggregateCommandHandlerVerticle(
     aggregateIdToAddress =
       sharedData.getLocalMap<AggregateId, String>(aggregateIdToAggregateAddressMapName)
 
-    commandRegistrar.registerCommandHandlerWithLocalAndClusterAddresses(
-      eventBus, AggregateCommandAddress,
-      Handler<Message<AggregateCommand>> {
-        launch(vertx.dispatcher()) { routeCommand(it) }
-      })
+    commandRegistrar.registerCommandHandler(this, AggregateCommandAddress, ::routeCommand)
   }
 
   private suspend fun routeCommand(commandMessage: Message<AggregateCommand>) {
@@ -59,7 +52,7 @@ class EventSourcedAggregateCommandHandlerVerticle(
 
     if (aggregateAddresses.isAggregateLocal(aggregateId)) {
       val result = awaitResult { it: Handler<AsyncResult<Message<SerializableVertxObject>>> ->
-        commandSender.send(eventBus,
+        commandSender.send(
           LoadEventSourcedAggregateCommand(aggregateId, aggregateAddress), it)
       }
       // TODO: failure handling???
@@ -67,7 +60,7 @@ class EventSourcedAggregateCommandHandlerVerticle(
 
     // TODO: we need to determine the remote command handlers address
     val result = awaitResult { it: Handler<AsyncResult<Message<SerializableVertxObject>>> ->
-      commandSender.send(eventBus, aggregateAddress, command, it)
+      commandSender.send(aggregateAddress, command, it)
     }
 
     commandSender.reply(commandMessage, result.body())

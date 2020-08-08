@@ -31,6 +31,8 @@ import java.util.UUID
  * with the garbage produced by the JDK class.
  */
 
+val EmptyUUID: UUID = "00000000-0000-0000-0000-000000000000".toUUID()
+
 
 // lookup is an array indexed by the **char**, and it has
 // valid values set with the decimal value of the hex char.
@@ -66,10 +68,8 @@ private fun buildLookup(): LongArray {
   return lu
 }
 
-// FROM STRING
-
-fun uuidFromString(str: String): UUID {
-  val len = str.length
+fun String.toUUID(): UUID {
+  val len = this.length
   if (len != 36) {
     throw IllegalArgumentException("Invalid UUID string (expected to be 36 characters long)")
   }
@@ -77,16 +77,16 @@ fun uuidFromString(str: String): UUID {
   var shift = 60
   var index = 0
   for (i in 0 until len) {
-    val c = str[i].toInt()
+    val c = this[i].toInt()
     if (c >= lookup.size || lookup[c] == ERROR.toLong()) {
       throw IllegalArgumentException(
-        "Invalid UUID string (unexpected '" + str[i] + "' at position " + i + " -> " + str + " )")
+        "Invalid UUID string (unexpected '${this[i]}' at position $i -> $this)")
     }
 
     if (lookup[c] == DASH.toLong()) {
       if ((i - 8) % 5 != 0) {
         throw IllegalArgumentException(
-          "Invalid UUID string (unexpected '-' at position $i -> $str )")
+          "Invalid UUID string (unexpected '-' at position $i -> $this )")
       }
       continue
     }

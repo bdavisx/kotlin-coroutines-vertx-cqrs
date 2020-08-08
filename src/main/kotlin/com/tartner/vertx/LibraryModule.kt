@@ -16,17 +16,8 @@ import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
-import org.kodein.di.generic.with
-import java.util.UUID
-
-private const val defaultNodeId = "local"
-
-// TODO: need to make sure some of these shouldn't be set by the end user
-typealias UUIDGenerator=() -> UUID
 
 val libraryModule = Kodein.Module("kotlin-coroutines-vertx-cqrs module") {
-  constant("nodeId") with defaultNodeId
-
   // TODO: the 8 here is the Max # of verticles instances to deploy, so it needs to be a config value
   bind<VerticleKodeinProvider>() with singleton { VerticleKodeinProvider(8) }
 
@@ -34,14 +25,17 @@ val libraryModule = Kodein.Module("kotlin-coroutines-vertx-cqrs module") {
   bind<TypedObjectMapper>() with singleton { TypedObjectMapper.default }
   bind<ExternalObjectMapper>() with singleton { ExternalObjectMapper.default }
 
-  bind<CommandSender>() with singleton { CommandSender() }
-  bind<CommandRegistrar>() with singleton { CommandRegistrar(defaultNodeId) }
+  bind<CommandSender>() with singleton { CommandSender(i()) }
+  bind<CommandRegistrar>() with singleton { CommandRegistrar(i(), i()) }
 
   bind<EventPublisher>() with singleton { EventPublisher(i()) }
   bind<EventRegistrar>() with singleton { EventRegistrar() }
 
-  bind<SharedEventSourcedAggregateRepositoryData>() with singleton { SharedEventSourcedAggregateRepositoryData() }
+  bind<SharedEventSourcedAggregateRepositoryData>() with singleton {
+    SharedEventSourcedAggregateRepositoryData() }
 
-  bind<EventSourcedAggregateDataVerticle>() with provider { EventSourcedAggregateDataVerticle(i(), i()) }
-  bind<EventSourcedAggregateRepositoryVerticle>() with provider { EventSourcedAggregateRepositoryVerticle(i(), i(), i(), i()) }
+  bind<EventSourcedAggregateDataVerticle>() with provider {
+    EventSourcedAggregateDataVerticle(i(), i()) }
+  bind<EventSourcedAggregateRepositoryVerticle>() with provider {
+    EventSourcedAggregateRepositoryVerticle(i(), i(), i(), i()) }
 }

@@ -60,7 +60,7 @@ class EventSourcedAggregateAutoRegistrarScanner(
       val factory = kodein.direct.factory<AggregateId, CoroutineVerticle>(TT(javaClass))
       val command = RegisterInstantiationClassesForAggregateLocalCommand(
         factory, creationParameterClasses, snapshotParameterClasses)
-      commandSender.send(eventBus, command)
+      commandSender.send(command)
     }
   }
 }

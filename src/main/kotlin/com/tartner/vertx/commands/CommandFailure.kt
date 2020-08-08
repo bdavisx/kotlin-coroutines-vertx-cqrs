@@ -1,6 +1,8 @@
 package com.tartner.vertx.commands
 
+import com.tartner.vertx.cqrs.CorrelationId
 import com.tartner.vertx.cqrs.FailureReply
+import com.tartner.vertx.cqrs.HasCorrelationId
 import io.vertx.core.AsyncResult
 import io.vertx.core.eventbus.Message
 
@@ -10,11 +12,12 @@ interface GeneralCommandFailure: FailureReply {
 }
 
 /** Represents the failure of a command due to a exception. */
-interface CommandFailureDueToException: FailureReply {
+interface CommandFailureDueToException: FailureReply, HasCorrelationId {
   val cause: Throwable
 }
 
-data class CommandFailedDueToException(override val cause: Throwable): CommandFailureDueToException
+data class CommandFailedDueToException(override val cause: Throwable,
+  override val correlationId: CorrelationId): CommandFailureDueToException
 
 /**
 This method will send a message reply in the result of a failure.

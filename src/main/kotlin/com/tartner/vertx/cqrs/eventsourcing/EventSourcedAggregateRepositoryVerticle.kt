@@ -23,8 +23,6 @@ import io.vertx.core.eventbus.Message
 import io.vertx.core.shareddata.Lock
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.awaitResult
-import io.vertx.kotlin.coroutines.dispatcher
-import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 typealias AggregateVerticleFactory = (AggregateId) -> CoroutineVerticle
@@ -63,9 +61,8 @@ class EventSourcedAggregateRepositoryVerticle(
 ): CoroutineVerticle() {
 
   override suspend fun start() {
-    commandRegistrar.registerLocalCommandHandler(
-      eventBus, LoadEventSourcedAggregateCommand::class,
-      Handler { launch(vertx.dispatcher()) { loadAggregate(it) }})
+    commandRegistrar.registerCommandHandler(
+      this, LoadEventSourcedAggregateCommand::class, ::loadAggregate)
 
     commandRegistrar.registerLocalCommandHandler(
       eventBus, RegisterInstantiationClassesForAggregateLocalCommand::class,

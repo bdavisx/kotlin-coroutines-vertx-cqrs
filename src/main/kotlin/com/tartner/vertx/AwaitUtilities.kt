@@ -22,6 +22,8 @@ suspend fun <T> awaitMessageResult(block: (h: Handler<AsyncResult<Message<T>>>) 
   else throw asyncResult.cause()
 }
 
+data class AwaitAsyncResultFailure(val cause: Throwable): FailureReply
+
 /** Converts an Either<FailureReply, T> into a return value or throws EitherFailureException if Left. */
 suspend fun <T> awaitMessageEitherResult(block: (
   h: Handler<AsyncResult<Message<Either<FailureReply, T>>>>) -> Unit) : T {
@@ -58,4 +60,4 @@ suspend fun SQLConnection.batchWithParamsA(queryText: String, params: List<JsonA
 
 suspend fun <Failure: SerializableVertxObject, Success: SerializableVertxObject>
   CommandSender.sendA(eventBus: EventBus, message: SerializableVertxObject)
-    : Message<Either<Failure, Success>> = awaitResult { this.send(eventBus, message, it) }
+    : Message<Either<Failure, Success>> = awaitResult { this.send(message, it) }

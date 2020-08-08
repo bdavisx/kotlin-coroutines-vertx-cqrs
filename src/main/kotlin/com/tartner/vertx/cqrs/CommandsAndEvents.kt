@@ -5,38 +5,56 @@ import com.tartner.vertx.functional.createRight
 import java.util.UUID
 import kotlin.reflect.KClass
 
-interface HasAggregateId {
-  val aggregateId: UUID
+// MUSTFIX: Docs for these interfaces
+
+typealias MessageHandler<T> = (T) -> Unit
+typealias ReplyMessageHandler<T> = (T, Reply) -> Unit
+
+typealias SuspendableMessageHandler<T> = suspend (T) -> Unit
+typealias SuspendableReplyMessageHandler<T> = suspend (T, Reply) -> Unit
+
+typealias Reply = (Any) -> Unit
+
+data class AggregateId(val id: String): SerializableVertxObject
+data class AggregateVersion(val version: Long)
+  : Comparable<AggregateVersion>, SerializableVertxObject {
+  override fun compareTo(other: AggregateVersion): Int = version.compareTo(other.version)
 }
 
-interface HasAggregateVersion: HasAggregateId {
-  val aggregateVersion: Long
+interface HasAggregateId { val aggregateId: AggregateId }
+
+interface HasAggregateVersion: HasAggregateId, Comparable<HasAggregateVersion> {
+  val aggregateVersion: AggregateVersion
+
+  override fun compareTo(other: HasAggregateVersion): Int =
+    aggregateVersion.compareTo(other.aggregateVersion)
 }
 
 annotation class EventHandler
-interface DomainEvent: SerializableVertxObject
+interface DomainEvent: SerializableVertxObject, HasCorrelationId
 
 interface AggregateEvent: DomainEvent, HasAggregateVersion
 
 /** This indicates an error happened that needs to be handled at a higher/different level. */
 interface ErrorEvent: DomainEvent
 
+typealias CorrelationId = UUID
+interface HasCorrelationId {
+  val correlationId: CorrelationId
+}
+
+fun newId() = UUID.randomUUID()
+
 annotation class CommandHandler
 
-typealias CommandId = UUID
-interface DomainCommand: SerializableVertxObject {
-  val commandId: CommandId
-}
-open class DefaultDomainCommand(override val commandId: CommandId = UUID.randomUUID()): DomainCommand
+interface DomainCommand: SerializableVertxObject, HasCorrelationId
 
 interface AggregateCommand: DomainCommand, HasAggregateId
-class DefaultAggregateCommand(override val aggregateId: AggregateId)
-  : DefaultDomainCommand(), AggregateCommand
 
-interface CommandResponse: SerializableVertxObject
+interface CommandReply: SerializableVertxObject
 
-interface Query: SerializableVertxObject
-interface QueryResponse: SerializableVertxObject
+interface Query: SerializableVertxObject, HasCorrelationId
+interface QueryReply: SerializableVertxObject
 
 interface AggregateSnapshot: SerializableVertxObject, HasAggregateVersion
 

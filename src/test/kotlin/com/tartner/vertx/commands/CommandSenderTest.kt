@@ -3,12 +3,10 @@ package com.tartner.vertx.commands
 import com.tartner.vertx.AbstractVertxTest
 import com.tartner.vertx.codecs.SerializableVertxObject
 import com.tartner.vertx.cqrs.SuccessReply
-import com.tartner.vertx.eventBus
 import com.tartner.vertx.kodein.VerticleDeployer
 import com.tartner.vertx.kodein.i
 import com.tartner.vertx.setupVertxKodein
 import io.vertx.core.CompositeFuture
-import io.vertx.core.Handler
 import io.vertx.core.eventbus.Message
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.unit.TestContext
@@ -49,12 +47,12 @@ class CommandSenderTest: AbstractVertxTest() {
     vertx.runOnContext { GlobalScope.launch(vertx.dispatcher()) {
       val deployer: VerticleDeployer = kodein.i()
       CompositeFuture.all(deployer.deployVerticles(vertx,
-        listOf(CommandSenderTestVerticle(kodein.i(), kodein.i())))).await()
+        listOf(CommandSenderTestVerticle(kodein.i())))).await()
 
       val sender: CommandSender = kodein.i()
       val command = DummyCommand(1)
       log.debug("Sending message")
-      awaitResult<Message<Any>> { sender.send(eventBus, command, it) }
+      awaitResult<Message<Any>> { sender.send(command, it) }
       log.debug("got reply")
 
       async.complete()
@@ -68,14 +66,11 @@ val localTestModule = Kodein.Module {
 
 data class DummyCommand(val value: Int): SerializableVertxObject
 
-class CommandSenderTestVerticle(
-  private val commandRegistrar: CommandRegistrar,
-  private val commandSender: CommandSender
-): CoroutineVerticle() {
+class CommandSenderTestVerticle(private val commandRegistrar: CommandRegistrar): CoroutineVerticle() {
   override suspend fun start() {
-    commandRegistrar.registerLocalCommandHandler(eventBus, DummyCommand::class, Handler {
+    commandRegistrar.registerCommandHandler(DummyCommand::class, { command, reply ->
       log.debug("Got message in TestVerticle")
-      commandSender.reply(it, SuccessReply)
+      reply(SuccessReply)
     })
   }
 }

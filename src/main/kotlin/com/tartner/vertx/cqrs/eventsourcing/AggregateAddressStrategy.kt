@@ -1,6 +1,5 @@
 package com.tartner.vertx.cqrs.eventsourcing
 
-import com.tartner.utilities.toStringFast
 import com.tartner.vertx.cqrs.AggregateId
 
 /**
@@ -24,5 +23,5 @@ class DefaultAggregateAddressStrategy(private val addressPrefix: String): Aggreg
   override fun isAggregateLocal(aggregateId: AggregateId): Boolean = true
 
   override fun determineAggregateAddress(aggregateId: AggregateId): String =
-    "$addressPrefix::${aggregateId.toStringFast()}"
+    "$addressPrefix::$aggregateId"
 }

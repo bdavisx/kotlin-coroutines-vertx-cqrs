@@ -7,7 +7,6 @@ title: CQRS Design
 
 I've went back and forth on this one. We need commands so we have a correlation id running thru the call stack. Commands also force a decoupling, but make tracing the calls much, much harder. An interface that takes commands would be a middle ground - it has both correlation and decoupling.
 
-
 # Event Sourcing
 
 ## EventSourcedAggregateRepositoryVerticle
